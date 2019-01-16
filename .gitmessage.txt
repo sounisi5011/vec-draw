@@ -1,0 +1,132 @@
+# ==== Format ====
+# {emoji} Subject
+#
+# Commit body...
+#
+# ==== Emoji Prefix ====
+# 🎨 Improving structure / format of the code.
+#        コードの構造/フォーマットを改善。
+# ⚡️ Improving performance.
+#        パフォーマンスを改善。
+# 🔥 Removing code or files.
+#        コード、または、ファイルを削除。
+# 🐛 Fixing a bug.
+#        バグを修正。
+# 🚑 Critical hotfix.
+#        クリティカル（重要）な修正。
+# ✨ Introducing new features.
+#        新機能の導入。
+# 📝 Writing docs.
+#        ドキュメントを執筆。
+# 🚀 Deploying stuff.
+#        デプロイ作業…？
+# 💄 Updating the UI and style files.
+#        UIとスタイルファイルを更新。
+# 🎉 Initial commit.
+#        初回コミット。
+# ✅ Adding tests.
+#        テストを追加。
+# 🔒 Fixing security issues.
+#        セキュリティの問題（issues）を修正。
+# 🍎 Fixing something on macOS.
+#        macOSに関する何か（環境依存の処理？）を修正。 or macOS上での修正作業。
+# 🐧 Fixing something on Linux.
+#        Linuxに関する何か（環境依存の処理？）を修正…？
+# 🏁 Fixing something on Windows.
+#        Windowsに関する何か（環境依存の処理？）を修正…？
+# 🤖 Fixing something on Android.
+#        Androidに関する何か（環境依存の処理？）を修正…？
+# 🍏 Fixing something on iOS.
+#        iOSに関する何か（環境依存の処理？）を修正…？
+# 🔖 Releasing / Version tags.
+#        リリース / バージョンタグ。
+# 🚨 Removing linter warnings.
+#        linterの警告を削除（修正？）。
+# 🚧 Work in progress.
+#        WIP。作業中。
+# 💚 Fixing CI Build.
+#        CIのビルドコード等を修正…？
+# ⬇️ Downgrading dependencies.
+#        依存関係のダウングレード。
+# ⬆️ Upgrading dependencies.
+#        依存関係のアップグレード。
+# 📌 Pinning dependencies to specific versions.
+#        特定のバージョンに依存関係を固定…？
+# 👷 Adding CI build system.
+#        CIのビルドコード等を追加…？
+# 📈 Adding analytics or tracking code.
+#        analyticsやトラッキングに関するコードを追加。
+# ♻️ Refactoring code.
+#        リファクタリング作業；動作を変えずにコードを整理。
+# 🐳 Work about Docker.
+#        Dockerに関する作業。
+# ➕ Adding a dependency.
+#        依存関係を追加。
+# ➖ Removing a dependency.
+#        依存関係を削除。
+# 🔧 Changing configuration files.
+#        設定ファイルを変更。
+# 🌐 Internationalization and localization.
+#        国際化とローカライゼーション。
+# ✏️ Fixing typos.
+#        typo（誤字）を修正。
+# 💩 Writing bad code that needs to be improved.
+#        改善が必要なクソコードを書く。
+# ⏪ Reverting changes.
+#        変更を元に戻す。
+# 🔀 Merging branches.
+#        ブランチのマージ。
+# 📦 Updating compiled files or packages.
+#        コンパイル済みファイル、または、パッケージを更新。
+# 👽 Updating code due to external API changes.
+#        外部APIの変更によるコードの更新。
+# 🚚 Moving or renaming files.
+#        ファイルを移動/リネーム。
+# 📄 Adding or updating license.
+#        ライセンスファイルを追加、または、更新。
+# 💥 Introducing breaking changes.
+#        破壊的変更を導入。
+# 🍱 Adding or updating assets.
+#        assets（アセット；画像ファイルとかの類）を追加、または、更新。
+# 👌 Updating code due to code review changes.
+#        コードレビューの変更（？）によるコードの更新。
+# ♿️ Improving accessibility.
+#        アクセシビリティの向上。
+# 💡 Documenting source code.
+#        ソースコードの文章化。
+# 🍻 Writing code drunkenly.
+#        酔いながらコードを書いている…？
+# 💬 Updating text and literals.
+#        テキストとリテラル（直書きした意味を把握しにくい数値等？）を更新…？
+# 🗃 Performing database related changes.
+#        データベース関連の変更を実行する…？
+# 🔊 Adding logs.
+#        ログを追加。
+# 🔇 Removing logs.
+#        ログを削除。
+# 👥 Adding contributor(s).
+#        コントリビューターを追加。
+# 🚸 Improving user experience / usability.
+#        ユーザーエクスペリエンス/ユーザビリティ（使いやすさ）の向上。
+# 🏗 Making architectural changes.
+#        アーキテクチャ（基本設計/設計思想）の変更…？
+# 📱 Working on responsive design.
+#        レスポンシブデザインに取り組み中。
+# 🤡 Mocking things.
+#        モックに関する何かしらの作業…？
+# 🥚 Adding an easter egg.
+#        イースターエッグを追加。
+# 🙈 Adding or updating a .gitignore file
+#        .gitignoreファイルを追加、または、更新。
+# 📸 Adding or updating snapshots
+#        スナップショットを追加、または、更新。
+# ⚗ Experimenting new things
+#        実験的な何かしらの作業…？
+# 🔍 Improving SEO
+#        SEOの向上
+# ☸️ Work about Kubernetes
+#        Kubernetesに関する作業。
+# 🏷️ Adding or updating types (Flow, TypeScript)
+#        型情報（Flow、TypeScriptなど）の追加、または、更新。
+#
+# see: https://gitmoji.carloscuesta.me/
