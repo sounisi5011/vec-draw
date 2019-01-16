@@ -2,7 +2,8 @@
   "name": "@sounisi5011/vec-draw",
   "version": "0.0.1",
   "description": "SVGを書きやすくするDSL",
-  "main": "index.js",
+  "main": "dist/index",
+  "module": "dist/index.mjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
