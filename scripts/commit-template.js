@@ -42,7 +42,7 @@ const getTemplate = async () => {
     const existing = fs.readFileSync(msgFilePath).toString();
     const templateText = await getTemplate();
 
-    if (existing.substr(0, templateText.length) === templateText && /^[\r\n]$/.test(existing.charAt(templateText.length))) {
+    if (existing.substr(0, templateText.length) === templateText && /^[\r\n]?$/.test(existing.charAt(templateText.length))) {
       console.log(`${OUTPUT_PREFIX}Commit template was duplicated`);
     } else {
       try {
@@ -50,11 +50,11 @@ const getTemplate = async () => {
         console.log(`${OUTPUT_PREFIX}Commit template inserted`);
       } catch(error) {
         console.error(`${OUTPUT_PREFIX}[!] COMMIT_MSG_FILE can't write`);
-        console.log(await getTemplate());
+        console.log(`${OUTPUT_PREFIX}\n${await getTemplate()}`);
       }
     }
   } catch(error) {
     console.error(`${OUTPUT_PREFIX}[!] COMMIT_MSG_FILE is not found`);
-    console.log(OUTPUT_PREFIX + await getTemplate());
+    console.log(`${OUTPUT_PREFIX}\n${await getTemplate()}`);
   }
 })();
