@@ -19,5 +19,9 @@
   "homepage": "https://github.com/sounisi5011/vec-draw",
   "files": [
     "dist/"
-  ]
+  ],
+  "devDependencies": {
+    "commit-template": "^1.0.0",
+    "husky": "^1.3.1"
+  }
 }
