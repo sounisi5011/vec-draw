@@ -1,25 +1,25 @@
 {
   "name": "@sounisi5011/vec-draw",
-  "version": "0.0.1",
   "description": "SVGを書きやすくするDSL",
-  "main": "dist/index",
-  "module": "dist/index.mjs",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "license": "MIT",
+  "author": "sounisi5011",
+  "homepage": "https://github.com/sounisi5011/vec-draw",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sounisi5011/vec-draw.git"
   },
-  "author": "sounisi5011",
-  "license": "MIT",
   "bugs": {
     "url": "https://github.com/sounisi5011/vec-draw/issues"
   },
-  "homepage": "https://github.com/sounisi5011/vec-draw",
+  "version": "0.0.1",
+  "main": "dist/index",
+  "module": "dist/index.mjs",
   "files": [
     "dist/"
   ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "devDependencies": {
     "husky": "^1.3.1",
     "lint-staged": "^8.1.0",
@@ -27,7 +27,14 @@
   },
   "husky": {
     "hooks": {
+      "pre-commit": "lint-staged",
       "prepare-commit-msg": "node scripts/commit-template.js"
     }
+  },
+  "lint-staged": {
+    "package.json": [
+      "prettier-package-json --write",
+      "git add"
+    ]
   }
 }
