@@ -38,11 +38,6 @@ ci-info@^2.0.0:
   resolved "https://registry.yarnpkg.com/ci-info/-/ci-info-2.0.0.tgz#67a9e964be31a51e15e5010d58e6f12834002f46"
   integrity sha512-5tK7EtrZ0N+OLFMthtqOj4fI2Jeb88C4CAZPu25LDVUgXJ0A3Js4PMGqrn0JU1W0Mh1/Z8wZzYPxqUrXeBboCQ==
 
-commit-template@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/commit-template/-/commit-template-1.0.0.tgz#075c4cbffaea2946088559c34a3ce7d17d3b1580"
-  integrity sha512-5UBw++HTdGQZHDq9ZmotlAC91RX0LrGdWUZGRG295jLgGTEYWiDHdhQaQANZmYexhcQIUxHebwFjxGp1z0Tscw==
-
 cosmiconfig@^5.0.7:
   version "5.0.7"
   resolved "https://registry.yarnpkg.com/cosmiconfig/-/cosmiconfig-5.0.7.tgz#39826b292ee0d78eda137dfa3173bd1c21a43b04"

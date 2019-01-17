@@ -21,7 +21,6 @@
     "dist/"
   ],
   "devDependencies": {
-    "commit-template": "^1.0.0",
     "husky": "^1.3.1"
   },
   "husky": {
