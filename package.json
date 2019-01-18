@@ -28,7 +28,7 @@
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged",
-      "prepare-commit-msg": "node scripts/commit-template.js"
+      "prepare-commit-msg": "node scripts/merge-block.js && node scripts/commit-template.js"
     }
   },
   "lint-staged": {
