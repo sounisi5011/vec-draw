@@ -39,7 +39,7 @@
       "post-update": "node scripts/hook-debug.js",
       "pre-applypatch": "node scripts/hook-debug.js",
       "pre-auto-gc": "node scripts/hook-debug.js",
-      "pre-commit": "node scripts/hook-debug.js && lint-staged",
+      "pre-commit": "node scripts/hook-debug.js && node scripts/commit-ban.js && lint-staged",
       "pre-push": "node scripts/hook-debug.js && node scripts/push-ban.js",
       "pre-rebase": "node scripts/hook-debug.js",
       "pre-receive": "node scripts/hook-debug.js",
