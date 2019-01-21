@@ -43,7 +43,7 @@
       "pre-push": "node scripts/hook-debug.js && node scripts/push-ban.js",
       "pre-rebase": "node scripts/hook-debug.js",
       "pre-receive": "node scripts/hook-debug.js",
-      "prepare-commit-msg": "node scripts/hook-debug.js && node scripts/merge-block.js && node scripts/commit-template.js",
+      "prepare-commit-msg": "node scripts/hook-debug.js && node scripts/merge-ban.js && node scripts/commit-template.js",
       "push-to-checkout": "node scripts/hook-debug.js",
       "sendemail-validate": "node scripts/hook-debug.js",
       "update": "node scripts/hook-debug.js"
