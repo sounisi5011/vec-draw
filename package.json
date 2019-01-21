@@ -28,25 +28,9 @@
   },
   "husky": {
     "hooks": {
-      "applypatch-msg": "node scripts/hook-debug.js",
-      "commit-msg": "node scripts/hook-debug.js",
-      "post-applypatch": "node scripts/hook-debug.js",
-      "post-checkout": "node scripts/hook-debug.js",
-      "post-commit": "node scripts/hook-debug.js",
-      "post-merge": "node scripts/hook-debug.js",
-      "post-receive": "node scripts/hook-debug.js",
-      "post-rewrite": "node scripts/hook-debug.js",
-      "post-update": "node scripts/hook-debug.js",
-      "pre-applypatch": "node scripts/hook-debug.js",
-      "pre-auto-gc": "node scripts/hook-debug.js",
-      "pre-commit": "node scripts/hook-debug.js && node scripts/commit-ban.js && lint-staged",
-      "pre-push": "node scripts/hook-debug.js && node scripts/push-ban.js",
-      "pre-rebase": "node scripts/hook-debug.js",
-      "pre-receive": "node scripts/hook-debug.js",
-      "prepare-commit-msg": "node scripts/hook-debug.js && node scripts/merge-ban.js && node scripts/commit-template.js",
-      "push-to-checkout": "node scripts/hook-debug.js",
-      "sendemail-validate": "node scripts/hook-debug.js",
-      "update": "node scripts/hook-debug.js"
+      "pre-commit": "node scripts/commit-ban.js && lint-staged",
+      "pre-push": "node scripts/push-ban.js",
+      "prepare-commit-msg": "node scripts/merge-ban.js && node scripts/commit-template.js"
     }
   },
   "lint-staged": {
