@@ -1,10 +1,6 @@
 'use strict';
 
-function indent(str, indent='  ') {
-  return String(str).split(/\r\n?|\n/)
-    .map(line => (line !== '') ? (indent + line) : '')
-    .join("\n");
-}
+const indent = require('./src/indent.js');
 
 console.log();
 console.log('↓↓↓↓↓ ↓↓↓↓↓ ↓↓↓↓↓ ↓↓↓↓↓ ↓↓↓↓↓');

@@ -1,16 +1,7 @@
 'use strict';
 
 const path = require('path');
-
-function indent(str, indent='    ', firstIndent=indent) {
-  return str.split(/\r\n?|\n/)
-    .map((line, index) => (
-      (line !== '') ?
-      (index === 0 ? firstIndent : indent) + line :
-      ''
-    ))
-    .join("\n");
-}
+const consoleMsg = require('./src/console-msg.js');
 
 const SCRIPT_PATH = './' + path.relative(process.cwd(), process.argv[1]);
 const OUTPUT_PREFIX = `${SCRIPT_PATH} > `;
@@ -30,14 +21,11 @@ const exitCode = (() => {
       if (/^refs\/(?!tags\/)[^/]+\//.test(remote_ref)) {
         const branchName = remote_ref.replace(/^refs\/[^/]+\//, '');
         if (/^(master|develop)$/.test(branchName)) {
-          console.error(indent(
+          console.error(consoleMsg(
+            OUTPUT_PREFIX,
             [
               `${branchName} ブランチの push は禁止されています。`,
             ]
-              .filter(line => line !== null)
-              .join("\n"),
-            ' '.repeat(OUTPUT_PREFIX.length),
-            OUTPUT_PREFIX
           ));
           return 1;
         }

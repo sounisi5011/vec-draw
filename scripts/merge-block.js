@@ -2,16 +2,8 @@
 
 const fs = require('fs');
 const path = require('path');
-
-function indent(str, indent='    ', firstIndent=indent) {
-  return str.split(/\r\n?|\n/)
-    .map((line, index) => (
-      (line !== '') ?
-      (index === 0 ? firstIndent : indent) + line :
-      ''
-    ))
-    .join("\n");
-}
+const consoleMsg = require('./src/console-msg.js');
+const indent = require('./src/indent.js');
 
 const [ COMMIT_MSG_FILE, COMMIT_SOURCE, SHA1 ] = (process.env.HUSKY_GIT_PARAMS || process.env.GIT_PARAMS || '').split(' ');
 const SCRIPT_PATH = './' + path.relative(process.cwd(), process.argv[1]);
@@ -35,7 +27,7 @@ if (COMMIT_SOURCE === 'merge') {
        */
       const match = /^Merge branch '([^ \r\n]+)' into ([^ \r\n]+)$/m.exec(commitMsg);
       if (!match) {
-        console.error(`${OUTPUT_PREFIX}[!] コミットメッセージの解析に失敗しました:\n${indent(commitMsg)}`);
+        console.error(`${OUTPUT_PREFIX}[!] コミットメッセージの解析に失敗しました:\n${indent(commitMsg, 4)}`);
         return;
       }
       const [, merge_branch, current_branch] = match;
@@ -177,7 +169,8 @@ if (COMMIT_SOURCE === 'merge') {
         /*
          * マージを拒否
          */
-        console.error(indent(
+        console.error(consoleMsg(
+          OUTPUT_PREFIX,
           [
             `${current_branch} ブランチに ${merge_branch} ブランチを`,
             `マージすることは禁止されています。`,
@@ -188,27 +181,23 @@ if (COMMIT_SOURCE === 'merge') {
               null
             ),
           ]
-            .filter(line => line !== null)
-            .join("\n"),
-          ' '.repeat(OUTPUT_PREFIX.length),
-          OUTPUT_PREFIX
         ));
       } else if (limitation === 'pr-only') {
         /*
          * マージを拒否（Pull Requestのみ許可）
          */
-        console.error(indent([
+        console.error(consoleMsg(OUTPUT_PREFIX, [
           `${current_branch} ブランチに ${merge_branch} ブランチを`,
           `ローカルでマージすることは禁止されています。`,
           'git merge --abort コマンドでマージ操作を取り消してください。',
           'マージする場合は、マージ操作の取り消し後、',
           'git push origin HEAD コマンドを実行してリモートにプッシュしてから、',
           'GitHub上でPull Requestを作成してください。',
-        ].join("\n"), ' '.repeat(OUTPUT_PREFIX.length), OUTPUT_PREFIX));
+        ]));
       } else {
-        console.error(indent([
+        console.error(consoleMsg(OUTPUT_PREFIX, [
           '不明なエラーが発生しました',
-        ].join("\n"), ' '.repeat(OUTPUT_PREFIX.length), OUTPUT_PREFIX));
+        ]));
         console.log({ current_branch, merge_branch, limitation, allowBranchList, denyBranchList });
         console.log();
       }
