@@ -1,16 +1,18 @@
 'use strict';
 
+const path = require('path');
 const indent = require('./src/indent.js');
 
-console.log();
-console.log('↓↓↓↓↓ ↓↓↓↓↓ ↓↓↓↓↓ ↓↓↓↓↓ ↓↓↓↓↓');
-console.log('argv:');
-console.log(indent(JSON.stringify(process.argv, null, 2)));
+const SCRIPT_PATH = './' + path.relative(process.cwd(), process.argv[1]);
 
-console.log('env.HUSKY_GIT_PARAMS:');
-console.log(indent(JSON.stringify(process.env.HUSKY_GIT_PARAMS, null, 2)));
-
-console.log('env.HUSKY_GIT_STDIN:');
-console.log(indent(JSON.stringify(process.env.HUSKY_GIT_STDIN, null, 2)));
-console.log('↑↑↑↑↑ ↑↑↑↑↑ ↑↑↑↑↑ ↑↑↑↑↑ ↑↑↑↑↑');
-console.log();
+console.log(`${SCRIPT_PATH}:`);
+console.log(indent([
+  'argv:',
+  indent(JSON.stringify(process.argv, null, 2)),
+  ...['HUSKY_GIT_PARAMS', 'HUSKY_GIT_STDIN']
+    .map(name => (
+      `env.${name}:\n` +
+      indent(JSON.stringify(process.env[name], null, 2))
+    )),
+  '',
+].join('\n'), 4));
