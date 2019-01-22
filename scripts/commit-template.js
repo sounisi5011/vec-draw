@@ -64,13 +64,13 @@ const getTemplate = async () => {
           fs.writeFileSync(msgFilePath, newCommitMessage);
           console.log(`${OUTPUT_PREFIX}Commit template inserted`);
         } catch(error) {
-          console.error(`${OUTPUT_PREFIX}[!] COMMIT_MSG_FILE can't write`);
+          console.error(`${OUTPUT_PREFIX}[!] ${COMMIT_MSG_FILE} can't write`);
           console.log(`${OUTPUT_PREFIX}\n${await getTemplate()}`);
         }
       }
     }
   } catch(error) {
-    console.error(`${OUTPUT_PREFIX}[!] COMMIT_MSG_FILE is not found`);
+    console.error(`${OUTPUT_PREFIX}[!] ${COMMIT_MSG_FILE} is not found`);
     console.log(`${OUTPUT_PREFIX}\n${await getTemplate()}`);
   }
 })();
