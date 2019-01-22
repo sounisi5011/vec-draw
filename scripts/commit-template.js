@@ -47,7 +47,7 @@ const getTemplate = async () => {
     const defaultCommentMatch = DEFAULT_COMMENT_REGEXP.exec(existing);
     if (defaultCommentMatch) {
       if (strIncludesLines(existing, templateText)) {
-        console.log(`${OUTPUT_PREFIX}Commit template was duplicated`);
+        console.log(`${OUTPUT_PREFIX}Commit template is duplicated`);
       } else {
         const defaultCommitComment = defaultCommentMatch[2];
         const existingCommitMessage = existing.substr(0, (defaultCommentMatch.index + defaultCommentMatch[1].length));
