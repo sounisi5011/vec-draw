@@ -43,12 +43,24 @@ const getTemplate = async () => {
     const existing = fs.readFileSync(msgFilePath).toString();
     const templateText = await getTemplate();
 
-    if (DEFAULT_COMMENT_REGEXP.test(existing)) {
+    const defaultCommentMatch = DEFAULT_COMMENT_REGEXP.exec(existing);
+    if (defaultCommentMatch) {
       if (existing.substr(0, templateText.length) === templateText && /^[\r\n]?$/.test(existing.charAt(templateText.length))) {
         console.log(`${OUTPUT_PREFIX}Commit template was duplicated`);
       } else {
+        const defaultCommitComment = defaultCommentMatch[0];
+        const existingCommitMessage = existing.substr(0, defaultCommentMatch.index);
+        const newCommitMessage = (
+          existingCommitMessage
+            .replace(/[^\r\n]$/, '$&\n') +
+          templateText
+            .replace(/[^\r\n]$/, '$&\n')
+            .replace(/[^\r\n](?:\r\n?|\n)$/, '$&\n') +
+          defaultCommitComment
+        );
+
         try {
-          fs.writeFileSync(msgFilePath, `${templateText}\n\n${existing}`);
+          fs.writeFileSync(msgFilePath, newCommitMessage);
           console.log(`${OUTPUT_PREFIX}Commit template inserted`);
         } catch(error) {
           console.error(`${OUTPUT_PREFIX}[!] COMMIT_MSG_FILE can't write`);
