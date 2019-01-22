@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const strIncludesLines = require('./src/str-includes-lines.js');
 
 const TEMPLATE_FILE_LIST = [
   process.argv[2],
@@ -45,7 +46,7 @@ const getTemplate = async () => {
 
     const defaultCommentMatch = DEFAULT_COMMENT_REGEXP.exec(existing);
     if (defaultCommentMatch) {
-      if (existing.substr(0, templateText.length) === templateText && /^[\r\n]?$/.test(existing.charAt(templateText.length))) {
+      if (strIncludesLines(existing, templateText)) {
         console.log(`${OUTPUT_PREFIX}Commit template was duplicated`);
       } else {
         const defaultCommitComment = defaultCommentMatch[2];
