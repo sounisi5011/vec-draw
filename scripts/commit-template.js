@@ -11,7 +11,7 @@ const TEMPLATE_FILE_LIST = [
 const [ COMMIT_MSG_FILE, COMMIT_SOURCE, SHA1 ] = (process.env.HUSKY_GIT_PARAMS || process.env.GIT_PARAMS || '').split(' ');
 const SCRIPT_PATH = './' + path.relative(process.cwd(), process.argv[1]);
 const OUTPUT_PREFIX = `${SCRIPT_PATH} > `;
-const DEFAULT_COMMENT_REGEXP = /(?=# Please enter the commit message)(?:#[^\r\n]*(?:\r\n?|\n))+$/;
+const DEFAULT_COMMENT_REGEXP = /(^|[\r\n])((?=# Please enter the commit message)(?:#[^\r\n]*(?:\r\n?|\n))+$)/;
 
 const getTemplate = async () => {
   const filelist = [];
@@ -48,8 +48,8 @@ const getTemplate = async () => {
       if (existing.substr(0, templateText.length) === templateText && /^[\r\n]?$/.test(existing.charAt(templateText.length))) {
         console.log(`${OUTPUT_PREFIX}Commit template was duplicated`);
       } else {
-        const defaultCommitComment = defaultCommentMatch[0];
-        const existingCommitMessage = existing.substr(0, defaultCommentMatch.index);
+        const defaultCommitComment = defaultCommentMatch[2];
+        const existingCommitMessage = existing.substr(0, (defaultCommentMatch.index + defaultCommentMatch[1].length));
         const newCommitMessage = (
           existingCommitMessage
             .replace(/[^\r\n]$/, '$&\n') +
