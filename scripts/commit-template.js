@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const strIncludesLines = require('./src/str-includes-lines.js');
+const consoleMsg = require('./src/console-msg.js');
 
 const TEMPLATE_FILE_LIST = [
   process.argv[2],
@@ -34,7 +35,7 @@ const getTemplate = async () => {
     }
   }
 
-  console.error(`${OUTPUT_PREFIX}[!] Could not find commit template files at ${filelist.join(', ')}`);
+  console.error(consoleMsg(OUTPUT_PREFIX, `Could not find commit template files at ${filelist.join(', ')}`));
   process.exit();
 };
 
@@ -47,7 +48,7 @@ const getTemplate = async () => {
     const defaultCommentMatch = DEFAULT_COMMENT_REGEXP.exec(existing);
     if (defaultCommentMatch) {
       if (strIncludesLines(existing, templateText)) {
-        console.log(`${OUTPUT_PREFIX}Commit template is duplicated`);
+        console.log(consoleMsg(OUTPUT_PREFIX, 'Commit template is duplicated'));
       } else {
         const defaultCommitComment = defaultCommentMatch[2];
         const existingCommitMessage = existing.substr(0, (defaultCommentMatch.index + defaultCommentMatch[1].length));
@@ -62,15 +63,19 @@ const getTemplate = async () => {
 
         try {
           fs.writeFileSync(msgFilePath, newCommitMessage);
-          console.log(`${OUTPUT_PREFIX}Commit template inserted`);
+          console.log(consoleMsg(OUTPUT_PREFIX, 'Commit template inserted'));
         } catch(error) {
-          console.error(`${OUTPUT_PREFIX}[!] ${COMMIT_MSG_FILE} can't write`);
-          console.log(`${OUTPUT_PREFIX}\n${await getTemplate()}`);
+          console.error(
+            consoleMsg(OUTPUT_PREFIX, `${COMMIT_MSG_FILE} can't write\n`) +
+            `${(await getTemplate()).replace(/^/mg, '    │ ')}`
+          );
         }
       }
     }
   } catch(error) {
-    console.error(`${OUTPUT_PREFIX}[!] ${COMMIT_MSG_FILE} is not found`);
-    console.log(`${OUTPUT_PREFIX}\n${await getTemplate()}`);
+    console.error(
+      consoleMsg(OUTPUT_PREFIX, `${COMMIT_MSG_FILE} is not found\n`) +
+      `${(await getTemplate()).replace(/^/mg, '    │ ')}`
+    );
   }
 })();
