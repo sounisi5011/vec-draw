@@ -42,16 +42,16 @@ const getTemplate = async () => {
 (async () => {
   try {
     const msgFilePath = path.resolve(process.cwd(), COMMIT_MSG_FILE);
-    const existing = fs.readFileSync(msgFilePath).toString();
+    const existingText = fs.readFileSync(msgFilePath).toString();
     const templateText = await getTemplate();
 
-    const defaultCommentMatch = DEFAULT_COMMENT_REGEXP.exec(existing);
+    const defaultCommentMatch = DEFAULT_COMMENT_REGEXP.exec(existingText);
     if (defaultCommentMatch) {
-      if (strIncludesLines(existing, templateText)) {
+      if (strIncludesLines(existingText, templateText)) {
         console.log(consoleMsg(OUTPUT_PREFIX, 'Commit template is duplicated'));
       } else {
         const defaultCommitComment = defaultCommentMatch[2];
-        const existingCommitMessage = existing.substr(0, (defaultCommentMatch.index + defaultCommentMatch[1].length));
+        const existingCommitMessage = existingText.substr(0, (defaultCommentMatch.index + defaultCommentMatch[1].length));
         const newCommitMessage = (
           existingCommitMessage
             .replace(/[^\r\n]$/, '$&\n') +
