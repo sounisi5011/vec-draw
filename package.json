@@ -33,6 +33,9 @@
     "prettier": "^1.16.1",
     "prettier-package-json": "^2.0.1"
   },
+  "engines": {
+    "node": ">=8.0.0"
+  },
   "husky": {
     "hooks": {
       "pre-commit": "node scripts/commit-ban.js && lint-staged",
