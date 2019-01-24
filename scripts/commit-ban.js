@@ -20,7 +20,12 @@ process.on('exit', () => {
       /*
        * master ブランチと develop ブランチへの commit は禁止
        */
-      console.error(consoleMsg(OUTPUT_PREFIX, `${branchName} ブランチへの commit は禁止されています。`));
+      console.error(
+        consoleMsg(
+          OUTPUT_PREFIX,
+          `${branchName} ブランチへの commit は禁止されています。`,
+        ),
+      );
       return 1;
     }
 

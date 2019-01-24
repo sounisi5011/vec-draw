@@ -21,13 +21,12 @@
  * @param {number|string} indentCountOrIndentStr
  * @return {string}
  */
-function indent(str, indentCountOrIndentStr=2) {
-  const indentStr = (
-    (typeof indentCountOrIndentStr === 'number') ?
-    ' '.repeat(indentCountOrIndentStr) :
-    String(indentCountOrIndentStr)
-  );
-  return String(str).replace(/^(?!$)/mg, () => indentStr);
+function indent(str, indentCountOrIndentStr = 2) {
+  const indentStr =
+    typeof indentCountOrIndentStr === 'number'
+      ? ' '.repeat(indentCountOrIndentStr)
+      : String(indentCountOrIndentStr);
+  return String(str).replace(/^(?!$)/gm, () => indentStr);
 }
 
 module.exports = indent;

@@ -5,7 +5,11 @@ const path = require('path');
 const consoleMsg = require('./src/console-msg.js');
 const indent = require('./src/indent.js');
 
-const [ COMMIT_MSG_FILE, COMMIT_SOURCE, SHA1 ] = (process.env.HUSKY_GIT_PARAMS || process.env.GIT_PARAMS || '').split(' ');
+const [COMMIT_MSG_FILE, COMMIT_SOURCE, SHA1] = (
+  process.env.HUSKY_GIT_PARAMS ||
+  process.env.GIT_PARAMS ||
+  ''
+).split(' ');
 const SCRIPT_PATH = './' + path.relative(process.cwd(), process.argv[1]);
 const OUTPUT_PREFIX = `${SCRIPT_PATH} > `;
 
@@ -25,39 +29,43 @@ function pullRequestOnlyMerge(current_branch, merge_branch) {
   /*
    * マージを拒否（Pull Requestのみ許可）
    */
-  console.error(consoleMsg(OUTPUT_PREFIX, [
-    `${current_branch} ブランチに ${merge_branch} ブランチを`,
-    `ローカルでマージすることは禁止されています。`,
-    'git merge --abort コマンドでマージ操作を取り消してください。',
-    '',
-    'マージする場合は、マージ操作の取り消し後、',
-    'git push origin HEAD コマンドを実行してリモートにプッシュしてから、',
-    'GitHub上でPull Requestを作成してください。',
-  ]));
+  console.error(
+    consoleMsg(OUTPUT_PREFIX, [
+      `${current_branch} ブランチに ${merge_branch} ブランチを`,
+      `ローカルでマージすることは禁止されています。`,
+      'git merge --abort コマンドでマージ操作を取り消してください。',
+      '',
+      'マージする場合は、マージ操作の取り消し後、',
+      'git push origin HEAD コマンドを実行してリモートにプッシュしてから、',
+      'GitHub上でPull Requestを作成してください。',
+    ]),
+  );
 }
 
 function denyMerge(current_branch, merge_branch, allowBranchList = []) {
   /*
    * マージを拒否
    */
-  const denyBranchList = (
-    ['master', 'develop', 'feature/*', 'release/*', 'hotfix/*']
-      .filter(branchName => !allowBranchList.includes(branchName))
-  );
+  const denyBranchList = [
+    'master',
+    'develop',
+    'feature/*',
+    'release/*',
+    'hotfix/*',
+  ].filter(branchName => !allowBranchList.includes(branchName));
 
-  console.error(consoleMsg(
-    OUTPUT_PREFIX,
-    [
+  console.error(
+    consoleMsg(OUTPUT_PREFIX, [
       `${current_branch} ブランチに ${merge_branch} ブランチを`,
       `マージすることは禁止されています。`,
       'git merge --abort コマンドでマージ操作を取り消してください。',
-      (0 < allowBranchList.length) ? (
-        !allowBranchList.includes('*') ?
-        `\nこのブランチはマージ可能です： ${allowBranchList.join(' ')}` :
-        `\nこのブランチはマージ禁止です： ${denyBranchList.join(' ')}`
-      ) : null,
-    ]
-  ));
+      0 < allowBranchList.length
+        ? !allowBranchList.includes('*')
+          ? `\nこのブランチはマージ可能です： ${allowBranchList.join(' ')}`
+          : `\nこのブランチはマージ禁止です： ${denyBranchList.join(' ')}`
+        : null,
+    ]),
+  );
 }
 
 if (COMMIT_SOURCE === 'merge') {
@@ -74,9 +82,16 @@ if (COMMIT_SOURCE === 'merge') {
       /*
        * マージ元とマージ先のブランチを取得する
        */
-      const match = /^Merge branch '([^ \r\n]+)' into ([^ \r\n]+)$/m.exec(commitMsg);
+      const match = /^Merge branch '([^ \r\n]+)' into ([^ \r\n]+)$/m.exec(
+        commitMsg,
+      );
       if (!match) {
-        console.error(`${OUTPUT_PREFIX}[!] コミットメッセージの解析に失敗しました:\n${indent(commitMsg, 4)}`);
+        console.error(
+          `${OUTPUT_PREFIX}[!] コミットメッセージの解析に失敗しました:\n${indent(
+            commitMsg,
+            4,
+          )}`,
+        );
         return;
       }
       const [, merge_branch, current_branch] = match;
@@ -103,7 +118,6 @@ if (COMMIT_SOURCE === 'merge') {
            */
           denyMerge(current_branch, merge_branch, allowBranchList);
         }
-
       } else if (current_branch === 'develop') {
         /*
          * developブランチへのマージ
@@ -111,7 +125,12 @@ if (COMMIT_SOURCE === 'merge') {
          * + Pull Requestのみ許可: feature/*
          * + 禁止: *
          */
-        const allowBranchList = ['master', 'feature/*', 'release/*', 'hotfix/*'];
+        const allowBranchList = [
+          'master',
+          'feature/*',
+          'release/*',
+          'hotfix/*',
+        ];
 
         if (/^master$|^(release|hotfix)\//.test(merge_branch)) {
           /*
@@ -129,7 +148,6 @@ if (COMMIT_SOURCE === 'merge') {
            */
           denyMerge(current_branch, merge_branch, allowBranchList);
         }
-
       } else if (/^feature\//.test(current_branch)) {
         /*
          * feature/*ブランチへのマージ
@@ -155,7 +173,6 @@ if (COMMIT_SOURCE === 'merge') {
            */
           pullRequestOnlyMerge(current_branch, merge_branch);
         }
-
       } else if (/^release\//.test(current_branch)) {
         /*
          * release/*ブランチへのマージ
@@ -175,7 +192,6 @@ if (COMMIT_SOURCE === 'merge') {
            */
           denyMerge(current_branch, merge_branch, allowBranchList);
         }
-
       } else if (/^hotfix\//.test(current_branch)) {
         /*
          * hotfix/*ブランチへのマージ
@@ -201,6 +217,6 @@ if (COMMIT_SOURCE === 'merge') {
          */
         allowMerge();
       }
-    } catch(e) {}
+    } catch (e) {}
   })();
 }

@@ -21,12 +21,11 @@ const exitCode = (() => {
       if (/^refs\/(?!tags\/)[^/]+\//.test(remote_ref)) {
         const branchName = remote_ref.replace(/^refs\/[^/]+\//, '');
         if (/^(master|develop)$/.test(branchName)) {
-          console.error(consoleMsg(
-            OUTPUT_PREFIX,
-            [
+          console.error(
+            consoleMsg(OUTPUT_PREFIX, [
               `${branchName} ブランチの push は禁止されています。`,
-            ]
-          ));
+            ]),
+          );
           return 1;
         }
       }

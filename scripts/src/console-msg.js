@@ -19,13 +19,14 @@
  */
 function consoleMsg(firstLinePrefix, msg) {
   const indentStr = ' '.repeat(firstLinePrefix.length);
-  const msgStr = (
-    Array.isArray(msg) ?
-    msg.filter(line => line !== null).join('\n') :
-    String(msg)
-  );
+  const msgStr = Array.isArray(msg)
+    ? msg.filter(line => line !== null).join('\n')
+    : String(msg);
 
-  return firstLinePrefix + msgStr.replace(/(?:\r\n?|\n)(?![\r\n]|$)/g, match => (match + indentStr));
+  return (
+    firstLinePrefix +
+    msgStr.replace(/(?:\r\n?|\n)(?![\r\n]|$)/g, match => match + indentStr)
+  );
 }
 
 module.exports = consoleMsg;
