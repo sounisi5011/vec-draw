@@ -4,6 +4,7 @@ env:
 extends:
   - eslint:recommended
   - plugin:node/recommended
+  - plugin:promise/recommended
   - airbnb-base
   - plugin:prettier/recommended
 parserOptions:
