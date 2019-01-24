@@ -7,6 +7,8 @@ extends:
   - plugin:node/recommended
   - plugin:promise/recommended
   - plugin:prettier/recommended
+plugins:
+  - promise
 parserOptions:
   ecmaVersion: 2018
   sourceType: module
