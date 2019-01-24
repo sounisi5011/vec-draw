@@ -40,8 +40,12 @@ export function compile(text) {
    * vec-draw DSLを解析し、定義文ごとに処理を行う
    */
   const pattern = /(?:^|[\r\n])([a-zA-Z_][a-zA-Z0-9_-]*)((?: +[^\r\n]*)?(?:(?:\r\n?|\n)(?: +[^\r\n]*)?)*)(?=[\r\n]|$)/g;
-  let match = null;
-  while ((match = pattern.exec(text))) {
+  do {
+    const match = pattern.exec(text);
+    if (!match) {
+      break;
+    }
+
     const [, nodeName, contents] = match;
     if (nodeName === 'rect') {
       /*
@@ -56,19 +60,17 @@ export function compile(text) {
 
       const coordMatch = /\(([0-9]+) *, *([0-9]+)\)/.exec(contents);
       if (coordMatch) {
-        rectElem.attributes.x = coordMatch[1];
-        rectElem.attributes.y = coordMatch[2];
+        [, rectElem.attributes.x, rectElem.attributes.y] = coordMatch;
       }
 
       const sizeMatch = /\(([0-9]+) *x *([0-9]+)\)/.exec(contents);
       if (sizeMatch) {
-        rectElem.attributes.width = sizeMatch[1];
-        rectElem.attributes.height = sizeMatch[2];
+        [, rectElem.attributes.width, rectElem.attributes.height] = sizeMatch;
       }
 
       rootElem.children.push(rectElem);
     }
-  }
+  } while (pattern.lastIndex > 0);
 
   return vnode2str(rootElem);
 }
