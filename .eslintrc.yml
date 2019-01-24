@@ -9,17 +9,6 @@ parserOptions:
   ecmaVersion: 2018
   sourceType: module
 rules:
-  curly: error
-  eqeqeq: error
-  linebreak-style:
-    - error
-    - unix
-  no-console: 'off'
-  no-var: error
-  prefer-const: error
-  semi:
-    - error
-    - always
   prettier/prettier:
     - error
     -
