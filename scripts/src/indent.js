@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * @example
  * // returns "  line1\n  line2\n  line3"

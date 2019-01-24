@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * ある文字列 targetString の中に、文字列 searchString が行単位で含まれているか判定する。
  * String.prototype.includes()と異なり、行が一致しない場合は false を返す。
