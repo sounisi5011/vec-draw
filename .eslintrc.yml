@@ -3,9 +3,9 @@ env:
   node: true
 extends:
   - eslint:recommended
+  - airbnb-base
   - plugin:node/recommended
   - plugin:promise/recommended
-  - airbnb-base
   - plugin:prettier/recommended
 parserOptions:
   ecmaVersion: 2018
