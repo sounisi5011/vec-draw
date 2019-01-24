@@ -5,13 +5,8 @@ const consoleMsg = require('./src/console-msg.js');
 const SCRIPT_PATH = `./${path.relative(process.cwd(), process.argv[1])}`;
 const OUTPUT_PREFIX = `${SCRIPT_PATH} > `;
 
-let exitCode = 1;
-process.on('exit', () => {
-  process.exit(exitCode);
-});
-
 (async () => {
-  exitCode = await (async () => {
+  process.exitCode = await (async () => {
     const branchName = await branch();
 
     if (['master', 'develop'].includes(branchName)) {

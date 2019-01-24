@@ -6,7 +6,7 @@ const OUTPUT_PREFIX = `${SCRIPT_PATH} > `;
 
 const z40 = '0000000000000000000000000000000000000000';
 
-const exitCode = (() => {
+process.exitCode = (() => {
   const linesData = (process.env.HUSKY_GIT_STDIN || '')
     .split(/\r\n?|\n/)
     .map(line => line.split(/ +/))
@@ -37,7 +37,3 @@ const exitCode = (() => {
 
   return 0;
 })();
-
-process.on('exit', () => {
-  process.exit(exitCode);
-});

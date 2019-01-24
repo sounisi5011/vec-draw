@@ -41,17 +41,20 @@ const getTemplate = async () => {
         `Could not find commit template files at ${filelist.join(', ')}`,
       ),
     );
-    process.exit();
   }
 
   return fileData;
 };
 
 (async () => {
+  const templateText = await getTemplate();
+  if (!templateText) {
+    return;
+  }
+
   try {
     const msgFilePath = path.resolve(process.cwd(), COMMIT_MSG_FILE);
     const existingText = fs.readFileSync(msgFilePath).toString();
-    const templateText = await getTemplate();
 
     const defaultCommentMatch = DEFAULT_COMMENT_REGEXP.exec(existingText);
     if (defaultCommentMatch) {
@@ -79,7 +82,7 @@ const getTemplate = async () => {
           // eslint-disable-next-line no-console
           console.error(
             consoleMsg(OUTPUT_PREFIX, `${COMMIT_MSG_FILE} can't write\n`) +
-              (await getTemplate()).replace(/^/gm, '    │ '),
+              templateText.replace(/^/gm, '    │ '),
           );
         }
       }
@@ -88,7 +91,7 @@ const getTemplate = async () => {
     // eslint-disable-next-line no-console
     console.error(
       consoleMsg(OUTPUT_PREFIX, `${COMMIT_MSG_FILE} is not found\n`) +
-        (await getTemplate()).replace(/^/gm, '    │ '),
+        templateText.replace(/^/gm, '    │ '),
     );
   }
 })();

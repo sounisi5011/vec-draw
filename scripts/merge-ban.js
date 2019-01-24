@@ -11,16 +11,11 @@ const [COMMIT_MSG_FILE, COMMIT_SOURCE] = (
 const SCRIPT_PATH = `./${path.relative(process.cwd(), process.argv[1])}`;
 const OUTPUT_PREFIX = `${SCRIPT_PATH} > `;
 
-let exitCode = 0;
-process.on('exit', () => {
-  process.exit(exitCode);
-});
-
 function allowMerge() {
   /*
    * マージを許可
    */
-  exitCode = 0;
+  process.exitCode = 0;
 }
 
 function pullRequestOnlyMerge(currentBranch, mergeBranch) {
@@ -72,7 +67,7 @@ function denyMerge(currentBranch, mergeBranch, allowBranchList = []) {
 }
 
 if (COMMIT_SOURCE === 'merge') {
-  exitCode = 1;
+  process.exitCode = 1;
 
   (() => {
     try {
