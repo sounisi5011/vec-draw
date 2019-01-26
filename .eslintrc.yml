@@ -1,0 +1,22 @@
+env:
+  es6: true
+  node: true
+extends:
+  - eslint:recommended
+  - airbnb-base
+  - plugin:node/recommended
+  - plugin:promise/recommended
+  - plugin:prettier/recommended
+plugins:
+  - promise
+parserOptions:
+  ecmaVersion: 2018
+  sourceType: module
+rules:
+  prettier/prettier: error
+overrides:
+  - files: scripts/**/*.js
+    rules:
+      import/no-extraneous-dependencies:
+        - error
+        - devDependencies: true

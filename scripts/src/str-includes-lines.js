@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * ある文字列 targetString の中に、文字列 searchString が行単位で含まれているか判定する。
  * String.prototype.includes()と異なり、行が一致しない場合は false を返す。
@@ -152,26 +150,23 @@ function strIncludesLines(targetString, searchString) {
     /** @type {string} マッチした文字列の次の文字 */
     const nextChar = targetString.charAt(matchIndex + searchString.length);
     /** @type {boolean} マッチした文字列が、検索対象文字列内の行頭から始まっていればtrueのフラグ */
-    const isLineHeadStart = (
+    const isLineHeadStart =
       // マッチした文字列の前が、文字列の始まり、またはLFか検証
       /^\n?$/.test(prevChar) ||
       // マッチした文字列の前がCR、かつ、マッチした文字列の先頭がLFではないか検証
-      /^\r[^\n]/.test(prevChar + searchString)
-    );
+      /^\r[^\n]/.test(prevChar + searchString);
     /** @type {boolean} マッチした文字列が、検索対象文字列内の行末で終わっていればtrueのフラグ */
-    const isEOLEnd = (
-      /[\r\n]$/.test(searchString) ?
-      /*
-       * マッチした文字列の最後が改行コードの場合、
-       * マッチした文字列の最後と次の文字との間でCRLFが存在していないか検証
-       */
-      !/\r\n$/.test(searchString + nextChar) :
-      /*
-       * マッチした文字列の最後が改行コードではない場合、
-       * マッチした文字列の次に改行コード、または文字列の終わりがくるか検証
-       */
-      /^[\r\n]?$/.test(nextChar)
-    );
+    const isEOLEnd = /[\r\n]$/.test(searchString)
+      ? /*
+         * マッチした文字列の最後が改行コードの場合、
+         * マッチした文字列の最後と次の文字との間でCRLFが存在していないか検証
+         */
+        !/\r\n$/.test(searchString + nextChar)
+      : /*
+         * マッチした文字列の最後が改行コードではない場合、
+         * マッチした文字列の次に改行コード、または文字列の終わりがくるか検証
+         */
+        /^[\r\n]?$/.test(nextChar);
 
     /*
      * マッチした文字列が検索対象文字列内で行頭から開始しており、
