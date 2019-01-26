@@ -40,6 +40,14 @@
   "engines": {
     "node": ">=8.0.0"
   },
+  "ava": {
+    "require": [
+      "esm"
+    ],
+    "extensions": [
+      "mjs"
+    ]
+  },
   "husky": {
     "hooks": {
       "pre-commit": "node scripts/commit-ban.js && lint-staged",
