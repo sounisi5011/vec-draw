@@ -1,7 +1,7 @@
 const test = require('ava');
 const consoleMsg = require('../../../scripts/src/console-msg.js');
 
-test('consoleMsg() / 先頭行以降は字数に合わせてインデント', t => {
+test('先頭行以降は字数に合わせてインデント', t => {
   // prettier-ignore
   const inputLines =
     'line1\n' +
@@ -16,7 +16,7 @@ test('consoleMsg() / 先頭行以降は字数に合わせてインデント', t 
   t.is(consoleMsg('output: ', inputLines), outputLines);
 });
 
-test('consoleMsg() / 改行コードは維持', t => {
+test('改行コードは維持', t => {
   // prettier-ignore
   const inputLines =
     'line1\r' +
@@ -33,7 +33,7 @@ test('consoleMsg() / 改行コードは維持', t => {
   t.is(consoleMsg('test: ', inputLines), outputLines);
 });
 
-test('consoleMsg() / 空行はインデントしない', t => {
+test('空行はインデントしない', t => {
   // prettier-ignore
   const inputLines =
     '42\n' +
