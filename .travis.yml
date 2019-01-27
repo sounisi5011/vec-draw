@@ -4,4 +4,5 @@ node_js:
   - lts/*
   - 10
   - 8
+  - 8.0.0
 cache: npm
