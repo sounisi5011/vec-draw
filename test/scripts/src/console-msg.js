@@ -2,12 +2,14 @@ const test = require('ava');
 const consoleMsg = require('../../../scripts/src/console-msg.js');
 
 test('consoleMsg() / 先頭行以降は字数に合わせてインデント', t => {
+  // prettier-ignore
   const inputLines =
-    'line1\n' + //
+    'line1\n' +
     'line2\n' +
     'line3';
+  // prettier-ignore
   const outputLines =
-    'output: line1\n' + //
+    'output: line1\n' +
     '        line2\n' +
     '        line3';
 
@@ -15,13 +17,15 @@ test('consoleMsg() / 先頭行以降は字数に合わせてインデント', t 
 });
 
 test('consoleMsg() / 改行コードは維持', t => {
+  // prettier-ignore
   const inputLines =
-    'line1\r' + //
+    'line1\r' +
     'line2\n' +
     'line3\r\n' +
     'line4';
+  // prettier-ignore
   const outputLines =
-    'test: line1\r' + //
+    'test: line1\r' +
     '      line2\n' +
     '      line3\r\n' +
     '      line4';
@@ -30,6 +34,7 @@ test('consoleMsg() / 改行コードは維持', t => {
 });
 
 test('consoleMsg() / 空行はインデントしない', t => {
+  // prettier-ignore
   const inputLines =
     '42\n' +
     '\n' +
@@ -46,6 +51,7 @@ test('consoleMsg() / 空行はインデントしない', t => {
     '\n' +
     '\n' +
     '\n';
+  // prettier-ignore
   const outputLines =
     'The answer to life the universe and everything: 42\n' +
     '\n' +
