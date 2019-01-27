@@ -38,7 +38,7 @@
     "prettier-package-json": "^2.0.1"
   },
   "engines": {
-    "node": ">=8.0.0"
+    "node": ">=8.10.0"
   },
   "ava": {
     "require": [
