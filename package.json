@@ -60,7 +60,7 @@
       "prettier-package-json --write",
       "git add"
     ],
-    "!(package).json|*.{js,yaml,yml}": [
+    "!(package).json|*.{mjs,js,yaml,yml}": [
       "prettier --write",
       "git add"
     ]
