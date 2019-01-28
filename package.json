@@ -18,7 +18,7 @@
     "dist/"
   ],
   "scripts": {
-    "lint": "eslint ./",
+    "lint": "eslint --ext .mjs --ext .js ./",
     "test": "ava"
   },
   "devDependencies": {
