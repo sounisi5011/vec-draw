@@ -35,5 +35,40 @@ export function compile(text) {
     },
     children: [],
   };
+
+  /*
+   * vec-draw DSLを解析し、定義文ごとに処理を行う
+   */
+  const pattern = /(?:^|[\r\n])([a-zA-Z_][a-zA-Z0-9_-]*)((?: +[^\r\n]*)?(?:(?:\r\n?|\n)(?: +[^\r\n]*)?)*)(?=[\r\n]|$)/g;
+  let match = null;
+  while ((match = pattern.exec(text))) {
+    const [, nodeName, contents] = match;
+    if (nodeName === 'rect') {
+      /*
+       * rect要素を追加する
+       */
+
+      const rectElem = {
+        nodeName: 'rect',
+        attributes: {},
+        children: [],
+      };
+
+      const coordMatch = /\(([0-9]+) *, *([0-9]+)\)/.exec(contents);
+      if (coordMatch) {
+        rectElem.attributes.x = coordMatch[1];
+        rectElem.attributes.y = coordMatch[2];
+      }
+
+      const sizeMatch = /\(([0-9]+) *x *([0-9]+)\)/.exec(contents);
+      if (sizeMatch) {
+        rectElem.attributes.width = sizeMatch[1];
+        rectElem.attributes.height = sizeMatch[2];
+      }
+
+      rootElem.children.push(rectElem);
+    }
+  }
+
   return vnode2str(rootElem);
 }
