@@ -1,6 +1,21 @@
 {
   const indentList = [];
   let indentStart = false;
+
+  function location2Position(locationData) {
+    return {
+      start: {
+        line: locationData.start.line,
+        column: locationData.start.column,
+        offset: locationData.start.offset
+      },
+      end: {
+        line: locationData.end.line,
+        column: locationData.end.column,
+        offset: locationData.end.offset
+      }
+    };
+  }
 }
 
 start
@@ -21,7 +36,8 @@ statement
             return obj;
           }, {}),
         children: children.filter(node => node.type !== 'attr'),
-        fullChildren: children
+        fullChildren: children,
+        position: location2Position(location())
       };
     }
 
@@ -45,7 +61,8 @@ attr
       return {
         type: 'attr',
         name: name,
-        value: value
+        value: value,
+        position: location2Position(location())
       };
     }
 
@@ -62,8 +79,9 @@ coord
         type: 'coord',
         value: {
           x: x.value,
-          y: y.value,
-        }
+          y: y.value
+        },
+        position: location2Position(location())
       };
     }
 
@@ -73,8 +91,9 @@ size
         type: 'size',
         value: {
           width: width.value,
-          height: height.value,
-        }
+          height: height.value
+        },
+        position: location2Position(location())
       };
     }
 
@@ -83,7 +102,8 @@ angle
       return {
         type: 'angle',
         value: value.value,
-        unit: unit.toLowerCase()
+        unit: unit.toLowerCase(),
+        position: location2Position(location())
       };
     }
 
@@ -91,7 +111,8 @@ number
   = value:$([0-9]* "." [0-9]+ / [0-9]+) {
       return {
         type: 'number',
-        value: value.replace(/^\./, '0.')
+        value: value.replace(/^\./, '0.'),
+        position: location2Position(location())
       };
     }
 
@@ -99,7 +120,8 @@ symbol
   = value:Identifier {
       return {
         type: 'symbol',
-        value: value
+        value: value,
+        position: location2Position(location())
       };
     }
 
