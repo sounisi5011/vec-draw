@@ -1,3 +1,3 @@
-import BaseError from './base';
+import SyntaxError from './syntax';
 
-export default class IndentationError extends BaseError {}
+export default class IndentationError extends SyntaxError {}
