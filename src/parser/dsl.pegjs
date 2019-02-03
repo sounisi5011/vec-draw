@@ -149,6 +149,16 @@ Indent
   = spaces:$(SP*) ! SP &{
       const currentIndent = indentList.join('');
 
+      const { end } = location();
+      const locationData = {
+        start: {
+          offset: end.offset - spaces.length,
+          line: end.line,
+          column: end.column - spaces.length,
+        },
+        end,
+      };
+
       if (currentIndent.length === spaces.length) {
         // インデントが同じ長さの場合
         if (spaces === currentIndent) {
@@ -165,7 +175,7 @@ Indent
             expectedIndent: currentIndent,
             matchIndent: spaces,
             message: 'インデント不一致',
-          });
+          }, locationData);
         }
       } else if (currentIndent.length < spaces.length) {
         // インデントが上がった場合
@@ -178,7 +188,7 @@ Indent
             expectedIndent: currentIndent,
             matchIndent: spaces,
             message: '予期しない字上げ'
-          });
+          }, locationData);
         } else if (!spaces.startsWith(currentIndent)) {
           expected({
             scope: 'indentation',
@@ -187,7 +197,7 @@ Indent
             expectedIndent: currentIndent,
             matchIndent: spaces,
             message: 'インデント不一致'
-          });
+          }, locationData);
         }
 
         const newIndent = spaces.substr(currentIndent.length);
@@ -207,7 +217,7 @@ Indent
               expectedIndent: currentIndent,
               matchIndent: spaces,
               message: '予期しない字下げ'
-            });
+            }, locationData);
           }
           if (dedent.length === spaces.length) {
             if (spaces === dedent) {
@@ -222,7 +232,7 @@ Indent
                 expectedIndent: currentIndent,
                 matchIndent: spaces,
                 message: 'インデント不一致'
-              });
+              }, locationData);
             }
           }
         }
