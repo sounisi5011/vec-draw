@@ -70,7 +70,7 @@ export function compile(text) {
             children: [],
           };
 
-          const coordNode = statementNode.value.find(
+          const coordNode = statementNode.children.find(
             node => node.type === 'coord',
           );
           if (coordNode) {
@@ -80,7 +80,7 @@ export function compile(text) {
             } = coordNode.value);
           }
 
-          const sizeNode = statementNode.value.find(
+          const sizeNode = statementNode.children.find(
             node => node.type === 'size',
           );
           if (sizeNode) {
@@ -103,33 +103,38 @@ export function compile(text) {
             children: [],
           };
 
-          pathElem.attributes.d = statementNode.value
-            .map((node, index, childNodeList) => {
+          pathElem.attributes.d = statementNode.children
+            .map((childNode, index, childNodeList) => {
               const prevNode = childNodeList[index - 1];
-              if (node.type === 'coord') {
+              if (childNode.type === 'coord') {
+                const coordNode = childNode;
+
                 if (
                   !prevNode ||
                   (prevNode.type === 'statement' &&
                     /^(?:close|circle|ellipse)$/.test(prevNode.name))
                 ) {
-                  return `M ${node.value.x} ${node.value.y}\n`;
+                  return `M ${coordNode.value.x} ${coordNode.value.y}\n`;
                 }
-                return ` ${node.value.x} ${node.value.y}\n`;
+                return ` ${coordNode.value.x} ${coordNode.value.y}\n`;
 
                 // eslint-disable-next-line no-else-return
-              } else if (node.type === 'statement') {
-                if (node.name === 'line') {
+              } else if (childNode.type === 'statement') {
+                // eslint-disable-next-line no-shadow
+                const statementNode = childNode;
+
+                if (statementNode.name === 'line') {
                   return 'L';
 
                   // eslint-disable-next-line no-else-return
-                } else if (node.name === 'close') {
+                } else if (statementNode.name === 'close') {
                   return 'Z\n';
-                } else if (node.name === 'bezCurve') {
-                  const coordList = node.value
-                    // eslint-disable-next-line no-shadow
+                } else if (statementNode.name === 'bezCurve') {
+                  const coordList = statementNode.children
                     .filter(node => node.type === 'coord')
-                    // eslint-disable-next-line no-shadow
-                    .map(node => `${node.value.x} ${node.value.y}`);
+                    .map(
+                      coordNode => `${coordNode.value.x} ${coordNode.value.y}`,
+                    );
                   if (coordList.length === 1) {
                     return `Q ${coordList[0]}`;
 
@@ -139,29 +144,15 @@ export function compile(text) {
                   } else {
                     return `C ${coordList[0]} ${coordList[1]}`;
                   }
-                } else if (node.name === 'arc') {
-                  const sizeNode = node.value.find(
-                    // eslint-disable-next-line no-shadow
+                } else if (statementNode.name === 'arc') {
+                  const sizeNode = statementNode.children.find(
                     node => node.type === 'size',
                   );
-                  const angleNode = node.value.find(
-                    // eslint-disable-next-line no-shadow
+                  const angleNode = statementNode.children.find(
                     node => node.type === 'angle',
                   );
-                  const sizeAttrNode = node.value.find(
-                    // eslint-disable-next-line no-shadow
-                    node => node.type === 'attr' && node.name === 'size',
-                  );
-                  const dirAttrNode = node.value.find(
-                    // eslint-disable-next-line no-shadow
-                    node => node.type === 'attr' && node.name === 'dir',
-                  );
-                  const sizeAttrValueNode = sizeAttrNode
-                    ? sizeAttrNode.value
-                    : null;
-                  const dirAttrValueNode = dirAttrNode
-                    ? dirAttrNode.value
-                    : null;
+                  const sizeAttrValueNode = statementNode.attributes.size;
+                  const dirAttrValueNode = statementNode.attributes.dir;
 
                   const [rx, ry] = [
                     sizeNode.value.width / 2,
@@ -184,23 +175,16 @@ export function compile(text) {
                     `  ${largeArcFlag} ${sweepFlag}\n` +
                     ` `
                   );
-                } else if (/^(?:circle|ellipse)$/.test(node.name)) {
+                } else if (/^(?:circle|ellipse)$/.test(statementNode.name)) {
                   const currentCoordNode = prevNode;
-                  const coordNode = node.value.find(
-                    // eslint-disable-next-line no-shadow
+                  const coordNode = statementNode.children.find(
                     node => node.type === 'coord',
                   );
-                  const sizeNode = node.value.find(
-                    // eslint-disable-next-line no-shadow
+                  const sizeNode = statementNode.children.find(
                     node => node.type === 'size',
                   );
-                  const pathRotateAttrNode = node.value.find(
-                    // eslint-disable-next-line no-shadow
-                    node => node.type === 'attr' && node.name === 'path-rotate',
-                  );
-                  const pathRotateAttrValueNode = pathRotateAttrNode
-                    ? pathRotateAttrNode.value
-                    : null;
+                  const pathRotateAttrValueNode =
+                    statementNode.attributes['path-rotate'];
 
                   const width = Math.abs(
                     coordNode.value.x - currentCoordNode.value.x,
@@ -215,7 +199,7 @@ export function compile(text) {
                     )
                       ? 1
                       : 0;
-                  if (node.name === 'ellipse') {
+                  if (statementNode.name === 'ellipse') {
                     const { width: xRatio, height: yRatio } = sizeNode.value;
                     const [rx, ry] = (() => {
                       if (height === 0) {
@@ -241,7 +225,7 @@ export function compile(text) {
                     );
 
                     // eslint-disable-next-line no-else-return
-                  } else if (node.name === 'circle') {
+                  } else if (statementNode.name === 'circle') {
                     const diameter = Math.sqrt(width ** 2 + height ** 2);
                     const radius = diameter / 2;
                     return (

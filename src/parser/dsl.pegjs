@@ -10,10 +10,18 @@ start
 
 statement
   = name:Identifier st:statement_attr* SP* StartIndent stl:statement_children* EndIndent {
+      const children = [].concat(st, ...stl);
       return {
         type: 'statement',
         name: name,
-        value: [].concat(st, ...stl)
+        attributes: children
+          .filter(node => node.type === 'attr')
+          .reduce((obj, attrNode) => {
+            obj[attrNode.name] = attrNode.value;
+            return obj;
+          }, {}),
+        children: children.filter(node => node.type !== 'attr'),
+        fullChildren: children
       };
     }
 
