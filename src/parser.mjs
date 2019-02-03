@@ -8,7 +8,8 @@ export function parse(sourceText) {
     return parser.parse(sourceText);
   } catch (err) {
     if (err instanceof SyntaxError) {
-      const { expected: expectationList } = err;
+      const { expected: expectationList, location } = err;
+
       expectationList.forEach(({ type, description }) => {
         if (type === 'other' && description.scope === 'indentation') {
           const {
@@ -25,16 +26,21 @@ export function parse(sourceText) {
 
           if (!startsEquals) {
             throw new IndentationError(
-              'indent does not match current indentation level',
-            );
+              `indent does not match current indentation level`,
+              location,
+            ).setPrevious(err);
           }
 
           if (currentIndent.length < spaces.length && mode === 'same') {
-            throw new IndentationError('unexpected indent');
+            throw new IndentationError(
+              `unexpected indent`,
+              location,
+            ).setPrevious(err);
           } else if (currentIndent.length > spaces.length) {
             throw new IndentationError(
-              'unindent does not match any outer indentation level',
-            );
+              `unindent does not match any outer indentation level`,
+              location,
+            ).setPrevious(err);
           }
         }
       });
