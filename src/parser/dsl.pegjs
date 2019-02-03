@@ -24,19 +24,28 @@ start
     }
 
 statement
-  = name:Identifier st:statement_attr* SP* StartIndent stl:statement_children* EndIndent {
-      const children = [].concat(st, ...stl);
+  = name:symbol st:statement_attr* SP* StartIndent stl:statement_children* EndIndent {
+      const fullChildren = [].concat(st, ...stl);
+      const [attributes, attributeNodes, children] = fullChildren
+        .reduce(([attributes, attributeNodes, children], childNode) => {
+          if (childNode.type === 'attr') {
+            const attrNode = childNode;
+            attributes[attrNode.name] = attrNode.value;
+            attributeNodes[attrNode.name] = attrNode;
+          } else {
+            children.push(childNode);
+          }
+          return [attributes, attributeNodes, children];
+        }, [{}, {}, []]);
+
       return {
         type: 'statement',
-        name: name,
-        attributes: children
-          .filter(node => node.type === 'attr')
-          .reduce((obj, attrNode) => {
-            obj[attrNode.name] = attrNode.value;
-            return obj;
-          }, {}),
-        children: children.filter(node => node.type !== 'attr'),
-        fullChildren: children,
+        name: name.value,
+        nameSymbol: name,
+        attributes: attributes,
+        attributeNodes: attributeNodes,
+        children: children,
+        fullChildren: fullChildren,
         position: location2Position(location())
       };
     }
@@ -57,10 +66,11 @@ statement_value
     }
 
 attr
-  = name:Identifier "=" SP* value:value {
+  = name:symbol "=" SP* value:value {
       return {
         type: 'attr',
-        name: name,
+        name: name.value,
+        nameSymbol: name,
         value: value,
         position: location2Position(location())
       };
@@ -81,6 +91,10 @@ coord
           x: x.value,
           y: y.value
         },
+        valueNode: {
+          x: x,
+          y: y
+        },
         position: location2Position(location())
       };
     }
@@ -93,6 +107,10 @@ size
           width: width.value,
           height: height.value
         },
+        valueNode: {
+          width: width,
+          height: height
+        },
         position: location2Position(location())
       };
     }
@@ -102,6 +120,7 @@ angle
       return {
         type: 'angle',
         value: value.value,
+        valueNode: value,
         unit: unit.toLowerCase(),
         position: location2Position(location())
       };
@@ -112,21 +131,19 @@ number
       return {
         type: 'number',
         value: value.replace(/^\./, '0.'),
+        rawValue: value,
         position: location2Position(location())
       };
     }
 
 symbol
-  = value:Identifier {
+  = value:$([_a-z]i [_a-z0-9-]i*) {
       return {
         type: 'symbol',
         value: value,
         position: location2Position(location())
       };
     }
-
-Identifier
-  = $([_a-z]i [_a-z0-9-]i*)
 
 Indent
   = spaces:$(SP*) ! SP &{
