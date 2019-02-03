@@ -2,7 +2,12 @@ import test from 'ava';
 import * as api from '../src/index';
 
 test('公開APIの存在検証', t => {
-  const apiNameList = ['compile', 'BaseError', 'IndentationError'];
+  const apiNameList = [
+    'compile',
+    'BaseError',
+    'IndentationError',
+    'SyntaxError',
+  ];
 
   t.deepEqual(apiNameList.sort(), Object.keys(api).sort());
 });
