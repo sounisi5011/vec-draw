@@ -258,3 +258,5 @@ export function compile(text) {
 
   return vnode2str(rootElem);
 }
+
+export * from './error';
