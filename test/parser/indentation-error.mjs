@@ -8,7 +8,7 @@ test('余分なインデント / SP SP ≠ SP SP SP', async t => {
     },
     {
       name: 'IndentationError',
-      message: /unexpected indent/,
+      message: /unexpected indent (?:.* )?\[3:1-3:4\]/,
     },
   );
 });
@@ -20,7 +20,7 @@ test('不足したインデント / SP SP ≠ SP', async t => {
     },
     {
       name: 'IndentationError',
-      message: /unindent does not match any outer indentation level/,
+      message: /unindent does not match any outer indentation level (?:.* )?\[3:1-3:2\]/,
     },
   );
 });
@@ -32,7 +32,7 @@ test('インデント文字が一致しない / SP ≠ TAB', async t => {
     },
     {
       name: 'IndentationError',
-      message: /indent does not match current indentation level/,
+      message: /indent does not match current indentation level (?:.* )?\[3:1-3:2\]/,
     },
   );
 });
@@ -44,7 +44,7 @@ test('インデント文字が一致しない / TAB ≠ SP', async t => {
     },
     {
       name: 'IndentationError',
-      message: /indent does not match current indentation level/,
+      message: /indent does not match current indentation level (?:.* )?\[3:1-3:2\]/,
     },
   );
 });
@@ -56,7 +56,7 @@ test('インデント文字が一致しない / SP SP ≠ SP TAB', async t => {
     },
     {
       name: 'IndentationError',
-      message: /indent does not match current indentation level/,
+      message: /indent does not match current indentation level (?:.* )?\[3:1-3:3\]/,
     },
   );
 });
@@ -68,7 +68,7 @@ test('インデント文字が一致しない / SP SP ≠ TAB SP', async t => {
     },
     {
       name: 'IndentationError',
-      message: /indent does not match current indentation level/,
+      message: /indent does not match current indentation level (?:.* )?\[3:1-3:3\]/,
     },
   );
 });
@@ -80,7 +80,7 @@ test('インデント文字が一致しない / SP SP ≠ TAB TAB', async t => {
     },
     {
       name: 'IndentationError',
-      message: /indent does not match current indentation level/,
+      message: /indent does not match current indentation level (?:.* )?\[3:1-3:3\]/,
     },
   );
 });
@@ -92,7 +92,7 @@ test('インデント文字が一致しない / SP TAB ≠ SP SP', async t => {
     },
     {
       name: 'IndentationError',
-      message: /indent does not match current indentation level/,
+      message: /indent does not match current indentation level (?:.* )?\[3:1-3:3\]/,
     },
   );
 });
@@ -104,7 +104,7 @@ test('インデント文字が一致しない / SP TAB ≠ TAB SP', async t => {
     },
     {
       name: 'IndentationError',
-      message: /indent does not match current indentation level/,
+      message: /indent does not match current indentation level (?:.* )?\[3:1-3:3\]/,
     },
   );
 });
@@ -116,7 +116,7 @@ test('インデント文字が一致しない / SP TAB ≠ TAB TAB', async t => 
     },
     {
       name: 'IndentationError',
-      message: /indent does not match current indentation level/,
+      message: /indent does not match current indentation level (?:.* )?\[3:1-3:3\]/,
     },
   );
 });
@@ -128,7 +128,7 @@ test('インデント文字が一致しない / TAB SP ≠ SP SP', async t => {
     },
     {
       name: 'IndentationError',
-      message: /indent does not match current indentation level/,
+      message: /indent does not match current indentation level (?:.* )?\[3:1-3:3\]/,
     },
   );
 });
@@ -140,7 +140,7 @@ test('インデント文字が一致しない / TAB SP ≠ SP TAB', async t => {
     },
     {
       name: 'IndentationError',
-      message: /indent does not match current indentation level/,
+      message: /indent does not match current indentation level (?:.* )?\[3:1-3:3\]/,
     },
   );
 });
@@ -152,7 +152,7 @@ test('インデント文字が一致しない / TAB SP ≠ TAB TAB', async t => 
     },
     {
       name: 'IndentationError',
-      message: /indent does not match current indentation level/,
+      message: /indent does not match current indentation level (?:.* )?\[3:1-3:3\]/,
     },
   );
 });
@@ -164,7 +164,7 @@ test('インデント文字が一致しない / TAB TAB ≠ SP SP', async t => {
     },
     {
       name: 'IndentationError',
-      message: /indent does not match current indentation level/,
+      message: /indent does not match current indentation level (?:.* )?\[3:1-3:3\]/,
     },
   );
 });
@@ -176,7 +176,7 @@ test('インデント文字が一致しない / TAB TAB ≠ SP TAB', async t => 
     },
     {
       name: 'IndentationError',
-      message: /indent does not match current indentation level/,
+      message: /indent does not match current indentation level (?:.* )?\[3:1-3:3\]/,
     },
   );
 });
@@ -188,7 +188,7 @@ test('インデント文字が一致しない / TAB TAB ≠ TAB SP', async t => 
     },
     {
       name: 'IndentationError',
-      message: /indent does not match current indentation level/,
+      message: /indent does not match current indentation level (?:.* )?\[3:1-3:3\]/,
     },
   );
 });
@@ -200,7 +200,7 @@ test('余分なインデント+インデント文字が一致しない / SP SP �
     },
     {
       name: 'IndentationError',
-      message: /indent does not match current indentation level/,
+      message: /indent does not match current indentation level (?:.* )?\[3:1-3:4\]/,
     },
   );
 });
@@ -212,7 +212,7 @@ test('余分なインデント+インデント文字が一致しない / SP SP �
     },
     {
       name: 'IndentationError',
-      message: /unexpected indent/,
+      message: /unexpected indent (?:.* )?\[3:1-3:4\]/,
     },
   );
 });
@@ -224,7 +224,7 @@ test('不足したインデント+インデント文字が一致しない / SP S
     },
     {
       name: 'IndentationError',
-      message: /indent does not match current indentation level/,
+      message: /indent does not match current indentation level (?:.* )?\[3:1-3:2\]/,
     },
   );
 });
@@ -236,7 +236,7 @@ test('不足したインデント+インデント文字が一致しない / SP T
     },
     {
       name: 'IndentationError',
-      message: /unindent does not match any outer indentation level/,
+      message: /unindent does not match any outer indentation level (?:.* )?\[3:1-3:2\]/,
     },
   );
 });
