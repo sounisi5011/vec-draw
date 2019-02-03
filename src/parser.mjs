@@ -4,4 +4,4 @@ export function parse(sourceText) {
   return parser.parse(sourceText);
 }
 
-export const { SyntaxError } = parser.SyntaxError;
+export const SyntaxError = parser.SyntaxError;
