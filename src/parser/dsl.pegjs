@@ -19,13 +19,13 @@
 }
 
 start
-  = st:(SPL / statement_value) stl:statement_children* {
-      return [].concat(st, ...stl);
+  = st:(SingleLineComment / SPL / statement_value) stl:statement_children* {
+      return [].concat(st, ...stl).filter(Boolean);
     }
 
 statement
-  = name:symbol st:statement_attr* SP* StartIndent stl:statement_children* {
-      const fullChildren = [].concat(st, ...stl);
+  = name:symbol st:statement_attr* (SP+ SingleLineComment / SP*) StartIndent stl:statement_children* {
+      const fullChildren = [].concat(st, ...stl).filter(Boolean);
       const [attributes, attributeNodes, children] = fullChildren
         .reduce(([attributes, attributeNodes, children], childNode) => {
           if (childNode.type === 'attr') {
@@ -61,7 +61,7 @@ statement_children
     }
 
 statement_value
-  = Indent value:(attr / statement / value) {
+  = Indent value:(SingleLineComment / attr / statement / value) {
       return value;
     }
 
@@ -144,6 +144,9 @@ symbol
         position: location2Position(location())
       };
     }
+
+SingleLineComment
+  = "--" (!EOL .)* {}
 
 Indent
   = spaces:$(SP*) ! SP &{
