@@ -57,15 +57,15 @@ start
     }
 
 statement
-  = name:symbol st:statement_attr* (SP+ SingleLineComment / SP*) StartIndent stl:statement_children* {
-      const fullChildren = [].concat(st, ...stl).filter(Boolean);
+  = name:symbol st:statement_attr* comment:(SP+ SingleLineComment / SP*) StartIndent stl:statement_children* {
+      const fullChildren = [].concat(...st, ...comment, ...stl).filter(Boolean);
       const [attributes, attributeNodes, children] = fullChildren
         .reduce(([attributes, attributeNodes, children], childNode) => {
           if (childNode.type === 'attr') {
             const attrNode = childNode;
             attributes[attrNode.name] = attrNode.value;
             attributeNodes[attrNode.name] = attrNode;
-          } else {
+          } else if (childNode.type !== 'comment') {
             children.push(childNode);
           }
           return [attributes, attributeNodes, children];
@@ -79,7 +79,7 @@ statement
         attributeNodes: attributeNodes,
         children: children,
         fullChildren: fullChildren,
-        position: position()
+        position: position(),
       };
     }
 
@@ -179,7 +179,13 @@ symbol
     }
 
 SingleLineComment
-  = "--" (!EOL .)* {}
+  = "--" value:$(!EOL .)* {
+      return {
+        type: 'comment',
+        value: value,
+        position: position()
+      };
+    }
 
 Indent
   = spaces:$(SP*) ! SP &{
@@ -277,9 +283,7 @@ StartIndent
     }
 
 SPL
-  = sp:SP* (& EOL / ! .) {
-      return sp;
-    }
+  = SP* (& EOL / ! .) {}
 
 EOL
   = "\r\n"
@@ -287,4 +291,4 @@ EOL
   / "\n"
 
 SP
-  = [ \t]
+  = [ \t] {}
