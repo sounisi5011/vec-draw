@@ -84,7 +84,7 @@ statement
     }
 
 statement_attr
-  = SP+ value:(attr / value) {
+  = SP+ value:(XMLStatement / attr / value) {
       return value;
     }
 
@@ -94,7 +94,7 @@ statement_children
     }
 
 statement_value
-  = Indent value:(SingleLineComment / attr / statement / value) {
+  = Indent value:(SingleLineComment / XMLStatement / attr / statement / value) {
       return value;
     }
 
@@ -280,6 +280,104 @@ StartIndent
   = &{
       indentStart = true;
       return true;
+    }
+
+XMLStatement
+  = contentValue:(XMLCdata / XMLComment / XMLElement) {
+      return {
+        type: 'xml',
+        content: contentValue,
+        position: position()
+      };
+    }
+
+XMLElement
+  = XMLElemSelfClose
+  / start:XMLElemStart content:(XMLLiteral / XMLCdata / XMLComment / XMLElement)* end:XMLElemEnd {
+      return {
+        type: "element",
+        tagName: start.name,
+        properties: start.attr,
+        children: content,
+        position: position()
+      };
+    }
+
+XMLElemSelfClose
+  = "<" nodeName:$([a-z]i [a-z0-9-]i*) attrList:(XMLAttr / SP / EOL)* "/>" {
+      return {
+        type: "element",
+        tagName: nodeName,
+        properties: attrList.reduce((properties, attr) => {
+          if (typeof attr === "object") {
+            const {name: attrName, value: attrValue} = attr;
+            properties[attrName] = attrValue;
+          }
+          return properties;
+        }, {}),
+        children: [],
+        position: position()
+      };
+    }
+
+XMLElemStart
+  = "<" nodeName:$([a-z]i [a-z0-9-]i*) attrList:(XMLAttr / SP / EOL)* ">" {
+      return {
+        name: nodeName,
+        attr: attrList.reduce((properties, attr) => {
+          if (typeof attr === "object") {
+            const {name: attrName, value: attrValue} = attr;
+            properties[attrName] = attrValue;
+          }
+          return properties;
+        }, {})
+      };
+    }
+
+XMLElemEnd
+  = "</" nodeName:$([a-z]i [a-z0-9-]i*) ">" {
+      return {
+        name: nodeName
+      };
+    }
+
+XMLAttr
+  = name:$([a-z]i [a-z0-9-]i*) SP* "=" SP* value:XMLAttrValue {
+      return {
+        name: name,
+        value: value,
+      };
+    }
+
+XMLAttrValue
+  = "'" value:$[^']* "'" { return value; }
+  / '"' value:$[^"]* '"' { return value; } //"
+
+XMLComment
+  = "<!--" value:$(!"-->" [^>])* "-->" {
+      return {
+        type: 'comment',
+        value: value,
+        position: position()
+      };
+    }
+
+XMLCdata
+  = "<![CDATA[" value:$(!"]]>" .)* "]]>" {
+      return {
+        type: 'text',
+        value: value,
+        position: position()
+      };
+    }
+
+XMLLiteral
+  = value:$[^<>]+ {
+      return {
+        type: 'text',
+        value: value,
+        position: position()
+      };
     }
 
 SPL
