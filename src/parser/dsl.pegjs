@@ -2,18 +2,51 @@
   const indentList = [];
   let indentStart = false;
 
-  function location2Position(locationData) {
-    return {
-      start: {
-        line: locationData.start.line,
-        column: locationData.start.column,
-        offset: locationData.start.offset
-      },
-      end: {
-        line: locationData.end.line,
-        column: locationData.end.column,
-        offset: locationData.end.offset
+  /**
+   * @param {number} [startOffset=location().start.offset]
+   * @param {number} [endOffset=location().end.offset]
+   * @return {{line: number, column: number, offset: number}}
+   */
+  function position(startOffset = null, endOffset = null) {
+    if (typeof startOffset !== 'number' || typeof endOffset !== 'number') {
+      const locationData = location();
+      if (typeof startOffset !== 'number') {
+        ({
+          start: {
+            offset: startOffset,
+          },
+        } = locationData);
       }
+      if (typeof endOffset !== 'number') {
+        ({
+          end: {
+            offset: endOffset,
+          }
+        } = locationData);
+      }
+    }
+
+    return {
+      start: computePoint(startOffset),
+      end: computePoint(endOffset),
+    };
+  }
+
+  /**
+   * @param {number} offsetInt
+   * @return {{line: number, column: number, offset: number}}
+   *
+   * TODO: pegjsが生成するpeg$computePosDetailsのような、Pointのキャッシュコード
+   */
+  function computePoint(offsetInt) {
+    const inputData = input.substring(0, offsetInt);
+    const lineBreakCount = (inputData.match(/\r\n?|\n/g) || []).length;
+    const currentLineText = /(?:^|\r\n?|\n)([^\r\n]*)$/.exec(inputData)[1];
+
+    return {
+      line: lineBreakCount + 1,
+      column: currentLineText.length + 1,
+      offset: offsetInt,
     };
   }
 }
@@ -46,7 +79,7 @@ statement
         attributeNodes: attributeNodes,
         children: children,
         fullChildren: fullChildren,
-        position: location2Position(location())
+        position: position()
       };
     }
 
@@ -72,7 +105,7 @@ attr
         name: name.value,
         nameSymbol: name,
         value: value,
-        position: location2Position(location())
+        position: position()
       };
     }
 
@@ -95,7 +128,7 @@ coord
           x: x,
           y: y
         },
-        position: location2Position(location())
+        position: position()
       };
     }
 
@@ -111,7 +144,7 @@ size
           width: width,
           height: height
         },
-        position: location2Position(location())
+        position: position()
       };
     }
 
@@ -122,7 +155,7 @@ angle
         value: value.value,
         valueNode: value,
         unit: unit.toLowerCase(),
-        position: location2Position(location())
+        position: position()
       };
     }
 
@@ -132,7 +165,7 @@ number
         type: 'number',
         value: value.replace(/^\./, '0.'),
         rawValue: value,
-        position: location2Position(location())
+        position: position()
       };
     }
 
@@ -141,7 +174,7 @@ symbol
       return {
         type: 'symbol',
         value: value,
-        position: location2Position(location())
+        position: position()
       };
     }
 
@@ -153,14 +186,7 @@ Indent
       const currentIndent = indentList.join('');
 
       const { end } = location();
-      const locationData = {
-        start: {
-          offset: end.offset - spaces.length,
-          line: end.line,
-          column: end.column - spaces.length,
-        },
-        end,
-      };
+      const locationData = position(end.offset - spaces.length, end.offset);
 
       if (currentIndent.length === spaces.length) {
         // インデントが同じ長さの場合
