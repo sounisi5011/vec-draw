@@ -302,6 +302,13 @@ XMLElement "XML Element"
         position: position()
       };
     }
+  / start:XMLElemStart {
+      expected({
+        scope: 'xml',
+        startTagName: start.name,
+        message: '閉じていない開始タグ',
+      });
+    }
 
 XMLElemSelfClose
   = "<" nodeName:$([a-z]i [a-z0-9-]i*) attrList:(XMLAttr / SP / EOL)* "/>" {
