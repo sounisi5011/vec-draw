@@ -293,8 +293,14 @@ XMLStatement "DSL XML Value"
 
 XMLElement "XML Element"
   = XMLElemSelfClose
-  / start:XMLElemStart content:(XMLLiteral / XMLCdata / XMLComment / XMLElement)* end:XMLElemEnd {
-      if (start.name !== end.name) {
+  / start:XMLElemStart content:(XMLLiteral / XMLCdata / XMLComment / XMLElement)* end:(XMLElemEnd / !XMLElemEnd) {
+      if (end === undefined) {
+        expected({
+          scope: 'xml',
+          startTagName: start.name,
+          message: '閉じていない開始タグ',
+        });
+      } else if (start.name !== end.name) {
         const { start: { offset: startOffset } } = location();
         const { start: { offset: endOffset } } = end.position;
         expected({
@@ -312,13 +318,6 @@ XMLElement "XML Element"
         children: content,
         position: position()
       };
-    }
-  / start:XMLElemStart {
-      expected({
-        scope: 'xml',
-        startTagName: start.name,
-        message: '閉じていない開始タグ',
-      });
     }
 
 XMLElemSelfClose
