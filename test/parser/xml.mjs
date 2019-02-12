@@ -1,5 +1,6 @@
 import test from 'ava';
 import { parse } from '../../src/parser';
+import { XMLError } from '../../src';
 
 const newlineMap = {
   LF: '\n',
@@ -103,4 +104,160 @@ test(`ネストしたXML`, async t => {
     .forEach(dsl => {
       t.snapshot(parse(dsl), JSON.stringify(dsl));
     });
+});
+
+test('閉じていないXML要素', async t => {
+  t.throws(
+    () => {
+      parse('<svg>');
+    },
+    {
+      instanceOf: XMLError,
+      name: 'XMLError',
+      message: /svg element is not closed (?:.* )?\[1:1-1:6\]/,
+    },
+  );
+  t.throws(
+    () => {
+      parse('<svg>🌏</data>');
+    },
+    {
+      instanceOf: XMLError,
+      name: 'XMLError',
+      message: /svg element is not closed (?:.* )?\[1:1-1:8\]/,
+    },
+  );
+  t.throws(
+    () => {
+      parse('<svg><data>🌏</svg>');
+    },
+    {
+      instanceOf: XMLError,
+      name: 'XMLError',
+      message: /data element is not closed (?:.* )?\[1:6-1:14\]/,
+    },
+  );
+  t.throws(
+    () => {
+      parse('<svg><data>🌏</svg></data>');
+    },
+    {
+      instanceOf: XMLError,
+      name: 'XMLError',
+      message: /data element is not closed (?:.* )?\[1:6-1:14\]/,
+    },
+  );
+  t.throws(
+    () => {
+      parse('<svg><data>🌏</data>');
+    },
+    {
+      instanceOf: XMLError,
+      name: 'XMLError',
+      message: /svg element is not closed (?:.* )?\[1:1-1:21\]/,
+    },
+  );
+  t.throws(
+    () => {
+      parse('<svg><data>🌏</data><g>text');
+    },
+    {
+      instanceOf: XMLError,
+      name: 'XMLError',
+      message: /g element is not closed (?:.* )?\[1:21-1:28\]/,
+    },
+  );
+  t.throws(
+    () => {
+      parse('<svg><data>🌏</data><g>text</group></svg>');
+    },
+    {
+      instanceOf: XMLError,
+      name: 'XMLError',
+      message: /g element is not closed (?:.* )?\[1:21-1:28\]/,
+    },
+  );
+  t.throws(
+    () => {
+      parse('<svg><data>🌏</data><br><data>地球</data></svg>');
+    },
+    {
+      instanceOf: XMLError,
+      name: 'XMLError',
+      message: /br element is not closed (?:.* )?\[1:21-1:40\]/,
+    },
+  );
+  t.throws(
+    () => {
+      parse('<svg>\n  <data>🌏</data>\n  <br>\n  <data>地球</data>\n</svg>');
+    },
+    {
+      instanceOf: XMLError,
+      name: 'XMLError',
+      message: /br element is not closed (?:.* )?\[3:3-5:1\]/,
+    },
+  );
+});
+
+test('開いていないXML要素', async t => {
+  t.throws(
+    () => {
+      parse('</svg>');
+    },
+    {
+      instanceOf: XMLError,
+      name: 'XMLError',
+      message: /svg element has not started (?:.* )?\[1:1-1:7\]/,
+    },
+  );
+  t.throws(
+    () => {
+      parse('<svg>🌏</data></svg>');
+    },
+    {
+      instanceOf: XMLError,
+      name: 'XMLError',
+      message: /data element has not started (?:.* )?\[1:8-1:15\]/,
+    },
+  );
+  t.throws(
+    () => {
+      parse('<svg>🌏</svg></data>');
+    },
+    {
+      instanceOf: XMLError,
+      name: 'XMLError',
+      message: /data element has not started (?:.* )?\[1:14-1:21\]/,
+    },
+  );
+  t.throws(
+    () => {
+      parse('<svg><data>🌏</data><g>text</g></group></svg>');
+    },
+    {
+      instanceOf: XMLError,
+      name: 'XMLError',
+      message: /group element has not started (?:.* )?\[1:32-1:40\]/,
+    },
+  );
+  t.throws(
+    () => {
+      parse('<svg><data>🌏</data></br><data>地球</data></svg>');
+    },
+    {
+      instanceOf: XMLError,
+      name: 'XMLError',
+      message: /br element has not started (?:.* )?\[1:21-1:26\]/,
+    },
+  );
+  t.throws(
+    () => {
+      parse('<svg>\n  <data>🌏</data>\n  </br>\n  <data>地球</data>\n</svg>');
+    },
+    {
+      instanceOf: XMLError,
+      name: 'XMLError',
+      message: /br element has not started (?:.* )?\[3:3-3:8\]/,
+    },
+  );
 });
