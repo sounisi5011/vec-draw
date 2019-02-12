@@ -283,12 +283,27 @@ StartIndent
     }
 
 XMLStatement "DSL XML Value"
-  = contentValue:(XMLCdata / XMLComment / XMLElement) {
+  = contentValue:(XMLCdata / XMLComment / XMLElement) end:XMLElemEnd? {
+      if (end) {
+        expected({
+          scope: 'xml',
+          endTagName: end.name,
+          message: '開始していない閉じタグ',
+        });
+      }
+
       return {
         type: 'xml',
         content: contentValue,
         position: position()
       };
+    }
+  / end:XMLElemEnd {
+      expected({
+        scope: 'xml',
+        endTagName: end.name,
+        message: '開始していない閉じタグ',
+      });
     }
 
 XMLElement "XML Element"

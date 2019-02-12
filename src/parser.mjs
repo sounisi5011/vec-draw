@@ -44,10 +44,17 @@ export function parse(sourceText) {
               ).setPrevious(err);
             }
           } else if (description.scope === 'xml') {
-            throw new XMLError(
-              `${description.startTagName} element is not closed`,
-              location,
-            ).setPrevious(err);
+            if (description.startTagName) {
+              throw new XMLError(
+                `${description.startTagName} element is not closed`,
+                location,
+              ).setPrevious(err);
+            } else if (description.endTagName) {
+              throw new XMLError(
+                `${description.endTagName} element has not started`,
+                location,
+              ).setPrevious(err);
+            }
           }
         }
       });
