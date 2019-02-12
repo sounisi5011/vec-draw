@@ -289,7 +289,7 @@ XMLStatement "DSL XML Value"
           scope: 'xml',
           endTagName: end.name,
           message: '開始していない閉じタグ',
-        });
+        }, end.position);
       }
 
       return {
