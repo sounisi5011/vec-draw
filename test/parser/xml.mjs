@@ -203,34 +203,10 @@ test('開いていないXML要素', async t => {
         message: /svg element has not started (?:.* )?\[1:1-1:7\]/,
       },
       {
-        data: '<svg>🌏</data></svg>',
-        instanceOf: XMLError,
-        name: 'XMLError',
-        message: /data element has not started (?:.* )?\[1:8-1:15\]/,
-      },
-      {
         data: '<svg>🌏</svg></data>',
         instanceOf: XMLError,
         name: 'XMLError',
         message: /data element has not started (?:.* )?\[1:14-1:21\]/,
-      },
-      {
-        data: '<svg><data>🌏</data><g>text</g></group></svg>',
-        instanceOf: XMLError,
-        name: 'XMLError',
-        message: /group element has not started (?:.* )?\[1:32-1:40\]/,
-      },
-      {
-        data: '<svg><data>🌏</data></br><data>地球</data></svg>',
-        instanceOf: XMLError,
-        name: 'XMLError',
-        message: /br element has not started (?:.* )?\[1:21-1:26\]/,
-      },
-      {
-        data: '<svg>\n  <data>🌏</data>\n  </br>\n  <data>地球</data>\n</svg>',
-        instanceOf: XMLError,
-        name: 'XMLError',
-        message: /br element has not started (?:.* )?\[3:3-3:8\]/,
       },
     ],
     (data, expected, msg) => {
