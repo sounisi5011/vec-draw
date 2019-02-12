@@ -7,6 +7,7 @@ test('公開APIの存在検証', t => {
     'BaseError',
     'IndentationError',
     'SyntaxError',
+    'XMLError',
   ];
 
   t.deepEqual(apiNameList.sort(), Object.keys(api).sort());
