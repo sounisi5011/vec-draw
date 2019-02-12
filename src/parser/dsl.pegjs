@@ -56,7 +56,7 @@ start
       return [].concat(st, ...stl).filter(Boolean);
     }
 
-statement
+statement "DSL Statement"
   = name:symbol st:statement_attr* comment:(SP+ SingleLineComment / SP*) StartIndent stl:statement_children* {
       const fullChildren = [].concat(...st, ...comment, ...stl).filter(Boolean);
       const [attributes, attributeNodes, children] = fullChildren
@@ -98,7 +98,7 @@ statement_value
       return value;
     }
 
-attr
+attr "DSL Attribute"
   = name:symbol "=" SP* value:value {
       return {
         type: 'attr',
@@ -109,14 +109,14 @@ attr
       };
     }
 
-value
+value "DSL Value"
   = coord
   / size
   / angle
   / number
   / symbol
 
-coord
+coord "DSL Coordinate-type Value"
   = "(" SP* x:number SP* "," SP* y:number SP* ")" {
       return {
         type: 'coord',
@@ -132,7 +132,7 @@ coord
       };
     }
 
-size
+size "DSL Size-type Value"
   = "(" SP* width:number SP* "x" SP* height:number SP* ")" {
       return {
         type: 'size',
@@ -148,7 +148,7 @@ size
       };
     }
 
-angle
+angle "DSL Angle-type Value"
   = value:number unit:"deg"i {
       return {
         type: 'angle',
@@ -159,7 +159,7 @@ angle
       };
     }
 
-number
+number "DSL Numeric Value"
   = value:$([0-9]* "." [0-9]+ / [0-9]+) {
       return {
         type: 'number',
@@ -169,7 +169,7 @@ number
       };
     }
 
-symbol
+symbol "DSL Symbol-type Value"
   = value:$([_a-z]i [_a-z0-9-]i*) {
       return {
         type: 'symbol',
@@ -178,7 +178,7 @@ symbol
       };
     }
 
-SingleLineComment
+SingleLineComment "DSL Comment"
   = "--" value:$(!EOL .)* {
       return {
         type: 'comment',
@@ -282,7 +282,7 @@ StartIndent
       return true;
     }
 
-XMLStatement
+XMLStatement "DSL XML Value"
   = contentValue:(XMLCdata / XMLComment / XMLElement) {
       return {
         type: 'xml',
@@ -291,7 +291,7 @@ XMLStatement
       };
     }
 
-XMLElement
+XMLElement "XML Element"
   = XMLElemSelfClose
   / start:XMLElemStart content:(XMLLiteral / XMLCdata / XMLComment / XMLElement)* end:XMLElemEnd {
       return {
@@ -341,7 +341,7 @@ XMLElemEnd
       };
     }
 
-XMLAttr
+XMLAttr "XML Attribute"
   = name:$([a-z]i [a-z0-9-]i*) SP* "=" SP* value:XMLAttrValue {
       return {
         name: name,
@@ -349,11 +349,11 @@ XMLAttr
       };
     }
 
-XMLAttrValue
+XMLAttrValue "XML Attribute Value"
   = "'" value:$[^']* "'" { return value; }
   / '"' value:$[^"]* '"' { return value; } //"
 
-XMLComment
+XMLComment "XML Comment"
   = "<!--" value:$(!"-->" [^>])* "-->" {
       return {
         type: 'comment',
@@ -362,7 +362,7 @@ XMLComment
       };
     }
 
-XMLCdata
+XMLCdata "XML CDATA Section"
   = "<![CDATA[" value:$(!"]]>" .)* "]]>" {
       return {
         type: 'text',
@@ -371,7 +371,7 @@ XMLCdata
       };
     }
 
-XMLLiteral
+XMLLiteral "XML Literal"
   = value:$[^<>]+ {
       return {
         type: 'text',
@@ -380,13 +380,13 @@ XMLLiteral
       };
     }
 
-SPL
+SPL "Whitespace Line"
   = SP* (& EOL / ! .) {}
 
-EOL
+EOL "Newline Character"
   = "\r\n"
   / "\r"
   / "\n"
 
-SP
+SP "Whitespace Character"
   = [ \t] {}
