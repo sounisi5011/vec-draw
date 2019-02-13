@@ -1,3 +1,11 @@
+function findFirstChildNode(node, expectedObject) {
+  const expectedEntries = Object.entries(expectedObject);
+  return node.children.find(
+    childNode =>
+      childNode && expectedEntries.every(([k, v]) => v === childNode[k]),
+  );
+}
+
 export function rect(statementNode) {
   const rectElem = {
     nodeName: 'rect',
@@ -5,12 +13,12 @@ export function rect(statementNode) {
     children: [],
   };
 
-  const coordNode = statementNode.children.find(node => node.type === 'coord');
+  const coordNode = findFirstChildNode(statementNode, { type: 'coord' });
   if (coordNode) {
     ({ x: rectElem.attributes.x, y: rectElem.attributes.y } = coordNode.value);
   }
 
-  const sizeNode = statementNode.children.find(node => node.type === 'size');
+  const sizeNode = findFirstChildNode(statementNode, { type: 'size' });
   if (sizeNode) {
     ({
       width: rectElem.attributes.width,
@@ -68,12 +76,12 @@ export function path(statementNode) {
             return `C ${coordList[0]} ${coordList[1]}`;
           }
         } else if (statementNode.name === 'arc') {
-          const sizeNode = statementNode.children.find(
-            node => node.type === 'size',
-          );
-          const angleNode = statementNode.children.find(
-            node => node.type === 'angle',
-          );
+          const sizeNode = findFirstChildNode(statementNode, {
+            type: 'size',
+          });
+          const angleNode = findFirstChildNode(statementNode, {
+            type: 'angle',
+          });
           const sizeAttrValueNode = statementNode.attributes.size;
           const dirAttrValueNode = statementNode.attributes.dir;
 
@@ -98,12 +106,12 @@ export function path(statementNode) {
           );
         } else if (/^(?:circle|ellipse)$/.test(statementNode.name)) {
           const currentCoordNode = prevNode;
-          const coordNode = statementNode.children.find(
-            node => node.type === 'coord',
-          );
-          const sizeNode = statementNode.children.find(
-            node => node.type === 'size',
-          );
+          const coordNode = findFirstChildNode(statementNode, {
+            type: 'coord',
+          });
+          const sizeNode = findFirstChildNode(statementNode, {
+            type: 'size',
+          });
           const pathRotateAttrValueNode =
             statementNode.attributes['path-rotate'];
 
