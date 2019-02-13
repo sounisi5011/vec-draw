@@ -6,6 +6,29 @@ function findFirstChildNode(node, expectedObject) {
   );
 }
 
+function array2doublyLinkedList(array) {
+  return array.map((val, index, arr) => ({
+    prev: arr[index - 1],
+    value: val,
+    next: arr[index + 1],
+  }));
+}
+
+function isStatementNode(node, statementName = null) {
+  if (node.type === 'statement') {
+    if (statementName === null) {
+      return true;
+    }
+    if (typeof statementName === 'string') {
+      return node.name === statementName;
+    }
+    if (Array.isArray(statementName)) {
+      return statementName.includes(node.name);
+    }
+  }
+  return false;
+}
+
 export function rect(statementNode) {
   const attrs = {};
 
@@ -29,136 +52,162 @@ export function rect(statementNode) {
 export function path(statementNode) {
   const attrs = {};
 
-  attrs.d = statementNode.children
-    .map((childNode, index, childNodeList) => {
-      const prevNode = childNodeList[index - 1];
+  const dataChildren = statementNode.children.filter(childNode =>
+    /^(?:coord|statement)$/.test(childNode.type),
+  );
+  const dataLinkedList = array2doublyLinkedList(dataChildren);
+
+  attrs.d = dataLinkedList
+    .map(({ prev: prevNode, value: childNode, next: nextNode }) => {
       if (childNode.type === 'coord') {
         const coordNode = childNode;
-
         if (
           !prevNode ||
-          (prevNode.type === 'statement' &&
-            /^(?:close|circle|ellipse)$/.test(prevNode.name))
+          isStatementNode(prevNode, ['close', 'circle', 'ellipse'])
         ) {
-          return `M ${coordNode.value.x} ${coordNode.value.y}\n`;
+          return `M ${coordNode.value.x} ${coordNode.value.y}`;
         }
-        return ` ${coordNode.value.x} ${coordNode.value.y}\n`;
+      } else if (isStatementNode(childNode, 'line')) {
+        if (nextNode.type === 'coord') {
+          const stopCoordNode = nextNode;
+          const stopCoord = `${stopCoordNode.value.x} ${stopCoordNode.value.y}`;
 
-        // eslint-disable-next-line no-else-return
-      } else if (childNode.type === 'statement') {
-        // eslint-disable-next-line no-shadow
-        const statementNode = childNode;
-
-        if (statementNode.name === 'line') {
-          return 'L';
-
-          // eslint-disable-next-line no-else-return
-        } else if (statementNode.name === 'close') {
-          return 'Z\n';
-        } else if (statementNode.name === 'bezCurve') {
-          const coordList = statementNode.children
+          return `L ${stopCoord}`;
+        }
+      } else if (isStatementNode(childNode, 'close')) {
+        return 'Z';
+      } else if (isStatementNode(childNode, 'bezCurve')) {
+        if (nextNode.type === 'coord') {
+          const coordList = childNode.children
             .filter(node => node.type === 'coord')
             .map(coordNode => `${coordNode.value.x} ${coordNode.value.y}`);
-          if (coordList.length === 1) {
-            return `Q ${coordList[0]}`;
 
-            // eslint-disable-next-line no-else-return
-          } else if (coordList.length === 2) {
-            return `C ${coordList[0]} ${coordList[1]}`;
-          } else {
-            return `C ${coordList[0]} ${coordList[1]}`;
+          const stopCoordNode = nextNode;
+          const stopCoord = `${stopCoordNode.value.x} ${stopCoordNode.value.y}`;
+
+          if (coordList.length === 1) {
+            return `Q ${coordList[0]} ${stopCoord}`;
           }
-        } else if (statementNode.name === 'arc') {
-          const sizeNode = findFirstChildNode(statementNode, {
+          if (coordList.length === 2) {
+            return `C ${coordList[0]} ${coordList[1]} ${stopCoord}`;
+          }
+          // TODO: 2以上の制御点を有するn次ベジェ曲線の生成
+        }
+      } else if (isStatementNode(childNode, 'arc')) {
+        if (nextNode.type === 'coord') {
+          const sizeNode = findFirstChildNode(childNode, {
             type: 'size',
           });
-          const angleNode = findFirstChildNode(statementNode, {
-            type: 'angle',
-          });
-          const sizeAttrValueNode = statementNode.attributes.size;
-          const dirAttrValueNode = statementNode.attributes.dir;
-
           const [rx, ry] = [
             sizeNode.value.width / 2,
             sizeNode.value.height / 2,
           ];
+          const radiusSize = `${rx} ${ry}`;
+
+          const angleNode = findFirstChildNode(childNode, {
+            type: 'angle',
+          });
           const xAxisRotation = angleNode ? angleNode.value : 0;
+
+          const sizeAttrValueNode = childNode.attributes.size;
           const largeArcFlag =
             sizeAttrValueNode && sizeAttrValueNode.value === 'large' ? 1 : 0;
+
+          const dirAttrValueNode = childNode.attributes.dir;
           const sweepFlag =
             dirAttrValueNode &&
             /^(?:turn-left|clockwise)$/.test(dirAttrValueNode.value)
               ? 1
               : 0;
 
+          const stopCoordNode = nextNode;
+          const stopCoord = `${stopCoordNode.value.x} ${stopCoordNode.value.y}`;
+
           return (
-            `A ${rx} ${ry}\n` +
+            `A ${radiusSize}\n` +
             `  ${xAxisRotation}\n` +
             `  ${largeArcFlag} ${sweepFlag}\n` +
-            ` `
+            `  ${stopCoord}`
           );
-        } else if (/^(?:circle|ellipse)$/.test(statementNode.name)) {
-          const currentCoordNode = prevNode;
-          const coordNode = findFirstChildNode(statementNode, {
-            type: 'coord',
-          });
-          const sizeNode = findFirstChildNode(statementNode, {
+        }
+      } else if (isStatementNode(childNode, ['circle', 'ellipse'])) {
+        const currentCoordNode = prevNode;
+        const currentCoord = `${currentCoordNode.value.x} ${
+          currentCoordNode.value.y
+        }`;
+
+        const diagonalCoordNode = findFirstChildNode(childNode, {
+          type: 'coord',
+        });
+        const diagonalCoord = `${diagonalCoordNode.value.x} ${
+          diagonalCoordNode.value.y
+        }`;
+
+        const pathRotateAttrValueNode = childNode.attributes['path-rotate'];
+
+        const width = Math.abs(
+          diagonalCoordNode.value.x - currentCoordNode.value.x,
+        );
+        const height = Math.abs(
+          diagonalCoordNode.value.y - currentCoordNode.value.y,
+        );
+        const sweepFlag =
+          pathRotateAttrValueNode &&
+          /^(?:turn-left|clockwise)$/.test(pathRotateAttrValueNode.value)
+            ? 1
+            : 0;
+
+        if (isStatementNode(childNode, 'circle')) {
+          const diameter = Math.sqrt(width ** 2 + height ** 2);
+          const radius = diameter / 2;
+          const radiusSize = `${radius} ${radius}`;
+
+          return (
+            `A ${radiusSize}\n` +
+            `  0\n` +
+            `  0 ${sweepFlag}\n` +
+            `  ${diagonalCoord}\n` +
+            `A ${radiusSize}\n` +
+            `  0\n` +
+            `  0 ${sweepFlag}\n` +
+            `  ${currentCoord}`
+          );
+        }
+        if (isStatementNode(childNode, 'ellipse')) {
+          const sizeNode = findFirstChildNode(childNode, {
             type: 'size',
           });
-          const pathRotateAttrValueNode =
-            statementNode.attributes['path-rotate'];
 
-          const width = Math.abs(coordNode.value.x - currentCoordNode.value.x);
-          const height = Math.abs(coordNode.value.y - currentCoordNode.value.y);
-          const sweepFlag =
-            pathRotateAttrValueNode &&
-            /^(?:turn-left|clockwise)$/.test(pathRotateAttrValueNode.value)
-              ? 1
-              : 0;
-          if (statementNode.name === 'ellipse') {
-            const { width: xRatio, height: yRatio } = sizeNode.value;
-            const [rx, ry] = (() => {
-              if (height === 0) {
-                return [width / xRatio, (width / xRatio) * yRatio];
-                // eslint-disable-next-line no-else-return
-              } else if (width === 0) {
-                return [height / yRatio, (height / yRatio) * xRatio];
-              }
-              return [NaN, NaN];
-            })().map(num => num / 2);
+          // TODO: もっとちゃんとした式に変える
+          const { width: xRatio, height: yRatio } = sizeNode.value;
+          const [rx, ry] = (() => {
+            if (height === 0) {
+              return [width / xRatio, (width / xRatio) * yRatio];
+            }
+            if (width === 0) {
+              return [height / yRatio, (height / yRatio) * xRatio];
+            }
+            return [NaN, NaN];
+          })().map(num => num / 2);
+          const radiusSize = `${rx} ${ry}`;
 
-            return (
-              `A ${rx} ${ry}\n` +
-              `  0\n` +
-              `  0 ${sweepFlag}\n` +
-              `  ${coordNode.value.x} ${coordNode.value.y}\n` +
-              `A ${rx} ${ry}\n` +
-              `  0\n` +
-              `  0 ${sweepFlag}\n` +
-              `  ${currentCoordNode.value.x} ${currentCoordNode.value.y}\n`
-            );
-
-            // eslint-disable-next-line no-else-return
-          } else if (statementNode.name === 'circle') {
-            const diameter = Math.sqrt(width ** 2 + height ** 2);
-            const radius = diameter / 2;
-            return (
-              `A ${radius} ${radius}\n` +
-              `  0\n` +
-              `  0 ${sweepFlag}\n` +
-              `  ${coordNode.value.x} ${coordNode.value.y}\n` +
-              `A ${radius} ${radius}\n` +
-              `  0\n` +
-              `  0 ${sweepFlag}\n` +
-              `  ${currentCoordNode.value.x} ${currentCoordNode.value.y}\n`
-            );
-          }
+          return (
+            `A ${radiusSize}\n` +
+            `  0\n` +
+            `  0 ${sweepFlag}\n` +
+            `  ${diagonalCoord}\n` +
+            `A ${radiusSize}\n` +
+            `  0\n` +
+            `  0 ${sweepFlag}\n` +
+            `  ${currentCoord}`
+          );
         }
       }
-      return '';
+
+      return null;
     })
-    .join('')
-    .replace(/^\n+|\n+$/, '');
+    .filter(Boolean)
+    .join('\n');
 
   return {
     nodeName: 'path',
