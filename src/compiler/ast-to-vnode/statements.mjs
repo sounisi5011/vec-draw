@@ -7,36 +7,29 @@ function findFirstChildNode(node, expectedObject) {
 }
 
 export function rect(statementNode) {
-  const rectElem = {
-    nodeName: 'rect',
-    attributes: {},
-    children: [],
-  };
+  const attrs = {};
 
   const coordNode = findFirstChildNode(statementNode, { type: 'coord' });
   if (coordNode) {
-    ({ x: rectElem.attributes.x, y: rectElem.attributes.y } = coordNode.value);
+    ({ x: attrs.x, y: attrs.y } = coordNode.value);
   }
 
   const sizeNode = findFirstChildNode(statementNode, { type: 'size' });
   if (sizeNode) {
-    ({
-      width: rectElem.attributes.width,
-      height: rectElem.attributes.height,
-    } = sizeNode.value);
+    ({ width: attrs.width, height: attrs.height } = sizeNode.value);
   }
 
-  return rectElem;
+  return {
+    nodeName: 'rect',
+    attributes: attrs,
+    children: [],
+  };
 }
 
 export function path(statementNode) {
-  const pathElem = {
-    nodeName: 'path',
-    attributes: {},
-    children: [],
-  };
+  const attrs = {};
 
-  pathElem.attributes.d = statementNode.children
+  attrs.d = statementNode.children
     .map((childNode, index, childNodeList) => {
       const prevNode = childNodeList[index - 1];
       if (childNode.type === 'coord') {
@@ -167,5 +160,9 @@ export function path(statementNode) {
     .join('')
     .replace(/^\n+|\n+$/, '');
 
-  return pathElem;
+  return {
+    nodeName: 'path',
+    attributes: attrs,
+    children: [],
+  };
 }
