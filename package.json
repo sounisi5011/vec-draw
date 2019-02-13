@@ -20,7 +20,7 @@
   "scripts": {
     "build:pegjs": "pegjs -o src/parser/dsl.pegjs.js src/parser/dsl.pegjs",
     "lint": "eslint --ext .mjs --ext .js ./",
-    "test": "run-s lint build:pegjs test:ava",
+    "test": "run-s build:pegjs lint test:ava",
     "test:ava": "ava"
   },
   "devDependencies": {
