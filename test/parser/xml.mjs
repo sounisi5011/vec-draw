@@ -2,16 +2,6 @@ import test from 'ava';
 import { parse } from '../../src/parser';
 import { XMLError } from '../../src';
 
-const newlineMap = {
-  LF: '\n',
-  CR: '\r',
-  CRLF: '\r\n',
-};
-
-const newlineCallback = callback => {
-  Object.entries(newlineMap).forEach(callback);
-};
-
 function throwsAssert(expectedDataList, callback) {
   expectedDataList.forEach(expectedData => {
     callback(
