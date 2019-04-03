@@ -52,12 +52,12 @@
 }
 
 start
-  = st:(SingleLineComment / SPL / statement_value) stl:statement_children* {
+  = st:statement_child_line stl:statement_children EOL? {
       return [].concat(st, ...stl).filter(Boolean);
     }
 
 statement "DSL Statement"
-  = name:symbol st:statement_attr* comment:(SP+ SingleLineComment / SP*) StartIndent stl:statement_children* {
+  = name:symbol st:statement_attr* comment:(SP+ SingleLineComment / SP*) StartIndent stl:statement_children {
       const fullChildren = [].concat(...st, ...comment, ...stl).filter(Boolean);
       const [attributes, attributeNodes, children] = fullChildren
         .reduce(([attributes, attributeNodes, children], childNode) => {
@@ -89,9 +89,11 @@ statement_attr
     }
 
 statement_children
-  = EOL value:(SPL / statement_value) {
-      return value;
-    }
+  = (EOL st:statement_child_line { return st; })*
+
+statement_child_line
+  = SPL { return null; }
+  / statement_value
 
 statement_value
   = Indent value:(SingleLineComment / XMLStatement / attr / statement / value) {
