@@ -20,3 +20,17 @@ overrides:
       import/no-extraneous-dependencies:
         - error
         - devDependencies: true
+  - files: '**/*.mjs'
+    rules:
+      no-restricted-globals:
+        - error
+        - name: __dirname
+        - name: __filename
+        - name: exports
+        - name: module
+        - name: require
+      import/no-commonjs: error
+      node/no-unsupported-features/es-syntax:
+        - error
+        - ignores:
+            - modules
