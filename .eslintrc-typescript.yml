@@ -6,7 +6,11 @@ extends:
   - prettier/@typescript-eslint
 parser: '@typescript-eslint/parser'
 parserOptions:
-  ecmaVersion: 2018
   sourceType: module
 plugins:
   - '@typescript-eslint'
+rules:
+  node/no-unsupported-features/es-syntax:
+    - error
+    - ignores:
+        - modules
