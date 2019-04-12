@@ -9,6 +9,12 @@ parserOptions:
   sourceType: module
 plugins:
   - '@typescript-eslint'
+settings:
+  import/resolver:
+    node:
+      extensions:
+        - .ts
+        - .js
 rules:
   node/no-unsupported-features/es-syntax:
     - error
