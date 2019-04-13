@@ -2,7 +2,6 @@ extends:
   - eslint:recommended
   - airbnb-base
   - plugin:@typescript-eslint/recommended
-  - plugin:import/typescript
   - plugin:prettier/recommended
   - prettier/@typescript-eslint
 parser: '@typescript-eslint/parser'
@@ -10,6 +9,12 @@ parserOptions:
   sourceType: module
 plugins:
   - '@typescript-eslint'
+settings:
+  import/resolver:
+    node:
+      extensions:
+        - .ts
+        - .js
 rules:
   node/no-unsupported-features/es-syntax:
     - error
