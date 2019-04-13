@@ -69,8 +69,16 @@
       "prettier-package-json --write",
       "git add"
     ],
-    "!(package).json|*.{ts,mjs,js,yaml,yml}": [
+    "!(package).json|*.{yaml,yml}": [
       "prettier --write",
+      "git add"
+    ],
+    "*.{mjs,js}": [
+      "eslint --fix",
+      "git add"
+    ],
+    "*.ts": [
+      "eslint --config ./.eslintrc-typescript.yml --fix",
       "git add"
     ]
   }
