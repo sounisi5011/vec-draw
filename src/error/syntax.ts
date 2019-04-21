@@ -1,12 +1,31 @@
 import BaseError from './base';
 
-const position2msg = (position): string =>
+interface Position {
+    start: {
+        offset: number;
+        line: number;
+        column: number;
+    };
+    end: {
+        offset: number;
+        line: number;
+        column: number;
+    };
+}
+
+const position2msg = (position: Position): string =>
     `[${position.start.line}:${position.start.column}-${position.end.line}:${
         position.end.column
     }]`;
 
 export default class SyntaxError extends BaseError {
-    public constructor(message, position = null, ...args) {
+    public position: Position | null = null;
+
+    public constructor(
+        message: string,
+        position: Position | null = null,
+        ...args: any[]
+    ) {
         super(message, ...args);
 
         Object.defineProperties(this, {
