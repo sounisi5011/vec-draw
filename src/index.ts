@@ -6,7 +6,7 @@ import vnode2str from './compiler/vnode-to-str';
  * @param {string} text 変換するvec-draw DSLの文字列
  * @return {string} 生成したSVG
  */
-export function compile(text): string {
+export function compile(text: string): string {
     /*
      * vec-draw DSLを解析し、定義文ごとに処理を行う
      */

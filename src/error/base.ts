@@ -4,39 +4,47 @@
  * @see https://github.com/necojackarc/extensible-custom-error
  */
 
-const mergeStackTrace = (targetError, previousError): string | null => {
-    if (
-        targetError instanceof Error &&
-        targetError.stack &&
-        previousError instanceof Error &&
-        previousError.stack
-    ) {
-        const targetStackTraceLines = targetError.stack
+function mergeStackTrace(
+    targetError: Error,
+    previousError: Error,
+): string | null {
+    const targetErrorStack = targetError.stack;
+    const previousErrorStack = previousError.stack;
+
+    if (targetErrorStack && previousErrorStack) {
+        const targetStackTraceLines = targetErrorStack
             .split('\n')
             .map(line =>
-                previousError.stack.includes(line.trim())
+                previousErrorStack.includes(line.trim())
                     ? line.replace(/^(\s*)(\S(?:.*\S)?)(\s*)$/, '$1[dup] $2$3')
                     : line,
             );
 
         return `${targetStackTraceLines.join(
             '\n',
-        )}\n\n${previousError.stack.replace(/^/gm, '  ')}`;
+        )}\n\n${previousErrorStack.replace(/^/gm, '  ')}`;
     }
     return null;
-};
+}
 
 export default class BaseError extends Error {
-    public constructor(message, ...args) {
-        super(message, ...args);
+    public previous: Error | null = null;
 
-        Object.defineProperties(this, {
-            name: {
+    public constructor(message: string) {
+        super(message);
+
+        const { constructor } = this;
+
+        if ('name' in constructor) {
+            Object.defineProperty(this, 'name', {
                 configurable: true,
                 enumerable: false,
-                value: this.constructor.name,
+                value: String((constructor as { name: unknown }).name),
                 writable: true,
-            },
+            });
+        }
+
+        Object.defineProperties(this, {
             message: {
                 configurable: true,
                 enumerable: false,
@@ -51,12 +59,13 @@ export default class BaseError extends Error {
             },
         });
 
-        if (Object.prototype.hasOwnProperty.call(Error, 'captureStackTrace')) {
-            Error.captureStackTrace(this, this.constructor);
+        const { captureStackTrace } = Error as any;
+        if (typeof captureStackTrace === 'function') {
+            captureStackTrace.call(Error, this, constructor);
         }
     }
 
-    public setPrevious(error): this {
+    public setPrevious(error: unknown): this {
         if (error instanceof Error) {
             Object.defineProperty(this, 'previous', {
                 configurable: true,
