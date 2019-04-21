@@ -27,9 +27,8 @@ export namespace PEGJs {
     export interface OtherExpectation {
         type: 'other';
         description: string | unknown;
-        // Note: descriptionパラメータの値は、PEG.jsの実装上はstringを想定しているように思えるが、
-        //       expected()関数の引数にどのような値も渡せるため、
-        //       unknown型も併記した。
+        // Note: descriptionプロパティの値は、PEG.jsの実装上はstringを想定しているように思えるが、
+        //       パーサ内で使用可能なexpected()関数の引数にはどのような値も渡せるため、unknown型も併記した。
     }
 
     export type Expectation =
