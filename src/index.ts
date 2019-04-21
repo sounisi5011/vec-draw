@@ -7,14 +7,14 @@ import vnode2str from './compiler/vnode-to-str';
  * @return {string} 生成したSVG
  */
 export function compile(text) {
-  /*
-   * vec-draw DSLを解析し、定義文ごとに処理を行う
-   */
-  const ast = parse(text);
+    /*
+     * vec-draw DSLを解析し、定義文ごとに処理を行う
+     */
+    const ast = parse(text);
 
-  const vnode = ast2vnode(ast);
+    const vnode = ast2vnode(ast);
 
-  return vnode2str(vnode);
+    return vnode2str(vnode);
 }
 
 export * from './error';
