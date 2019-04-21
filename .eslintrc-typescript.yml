@@ -16,6 +16,9 @@ rules:
     - error
     - ignores:
         - modules
+  '@typescript-eslint/explicit-function-return-type':
+    - warn
+    - allowExpressions: true
   prettier/prettier:
     - error
     - tabWidth: 4
