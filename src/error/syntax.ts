@@ -21,12 +21,8 @@ const position2msg = (position: Position): string =>
 export default class SyntaxError extends BaseError {
     public position: Position | null = null;
 
-    public constructor(
-        message: string,
-        position: Position | null = null,
-        ...args: any[]
-    ) {
-        super(message, ...args);
+    public constructor(message: string, position: Position | null = null) {
+        super(message);
 
         Object.defineProperties(this, {
             position: {
