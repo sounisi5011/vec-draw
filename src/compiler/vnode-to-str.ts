@@ -1,12 +1,14 @@
-/**
- * @typedef {{nodeName: string, attributes: Object<string, string>, children: Array<VNode>}} VNode
- */
+import VNode from './ast-to-vnode/vnode';
 
 /**
  * @param {VNode} vnode
  * @return {string}
  */
-export default function vnode2str({ nodeName, attributes, children }): string {
+export default function vnode2str({
+    nodeName,
+    attributes,
+    children,
+}: VNode): string {
     const attrsStr = Object.entries(attributes).reduce((acc, [attr, value]) => {
         let str = acc;
 
