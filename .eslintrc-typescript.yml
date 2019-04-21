@@ -15,3 +15,6 @@ rules:
     - error
     - ignores:
         - modules
+  prettier/prettier:
+    - error
+    - tabWidth: 4
