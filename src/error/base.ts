@@ -4,7 +4,7 @@
  * @see https://github.com/necojackarc/extensible-custom-error
  */
 
-const mergeStackTrace = (targetError, previousError) => {
+const mergeStackTrace = (targetError, previousError): string | null => {
     if (
         targetError instanceof Error &&
         targetError.stack &&
@@ -56,7 +56,7 @@ export default class BaseError extends Error {
         }
     }
 
-    public setPrevious(error) {
+    public setPrevious(error): this {
         if (error instanceof Error) {
             Object.defineProperty(this, 'previous', {
                 configurable: true,

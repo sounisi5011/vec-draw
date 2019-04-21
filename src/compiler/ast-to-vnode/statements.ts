@@ -1,4 +1,4 @@
-function findFirstChildNode(node, expectedObject) {
+function findFirstChildNode(node, expectedObject): object {
     const expectedEntries = Object.entries(expectedObject);
     return node.children.find(
         childNode =>
@@ -6,7 +6,7 @@ function findFirstChildNode(node, expectedObject) {
     );
 }
 
-function array2doublyLinkedList(array) {
+function array2doublyLinkedList(array): object[] {
     return array.map((val, index, arr) => ({
         prev: arr[index - 1],
         value: val,
@@ -14,7 +14,7 @@ function array2doublyLinkedList(array) {
     }));
 }
 
-function isStatementNode(node, statementName = null) {
+function isStatementNode(node, statementName = null): boolean {
     if (node.type === 'statement') {
         if (statementName === null) {
             return true;
@@ -29,7 +29,7 @@ function isStatementNode(node, statementName = null) {
     return false;
 }
 
-export function rect(statementNode) {
+export function rect(statementNode): object {
     const attrs = {};
 
     const coordNode = findFirstChildNode(statementNode, { type: 'coord' });
@@ -49,7 +49,7 @@ export function rect(statementNode) {
     };
 }
 
-export function path(statementNode) {
+export function path(statementNode): object {
     const attrs = {};
 
     const dataChildren = statementNode.children.filter(childNode =>

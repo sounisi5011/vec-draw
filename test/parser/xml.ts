@@ -2,7 +2,7 @@ import test from 'ava';
 import { parse } from '../../src/parser';
 import { XMLError } from '../../src';
 
-function throwsAssert(expectedDataList, callback) {
+function throwsAssert(expectedDataList, callback): void {
     expectedDataList.forEach(expectedData => {
         callback(
             expectedData.data,

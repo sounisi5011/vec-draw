@@ -1,6 +1,6 @@
 import BaseError from './base';
 
-const position2msg = position =>
+const position2msg = (position): string =>
     `[${position.start.line}:${position.start.column}-${position.end.line}:${
         position.end.column
     }]`;

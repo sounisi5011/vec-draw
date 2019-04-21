@@ -6,7 +6,7 @@
  * @param {VNode} vnode
  * @return {string}
  */
-export default function vnode2str({ nodeName, attributes, children }) {
+export default function vnode2str({ nodeName, attributes, children }): string {
     const attrsStr = Object.entries(attributes).reduce((acc, [attr, value]) => {
         let str = acc;
 

@@ -3,7 +3,7 @@ import { IndentationError, XMLError } from './error';
 
 export const { SyntaxError } = parser;
 
-export function parse(sourceText) {
+export function parse(sourceText): object[] {
     try {
         return parser.parse(sourceText);
     } catch (err) {

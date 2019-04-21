@@ -1,6 +1,6 @@
 import * as statementNode2vnodeMap from './ast-to-vnode/statements';
 
-function astChildren2vnodeList(children) {
+function astChildren2vnodeList(children): object[] {
     return children
         .filter(node => node.type === 'statement')
         .map(statementNode => {
@@ -14,7 +14,7 @@ function astChildren2vnodeList(children) {
         .filter(node => node);
 }
 
-export default function ast2vnode(ast) {
+export default function ast2vnode(ast): object {
     const rootElem = {
         nodeName: 'svg',
         attributes: {
