@@ -19,6 +19,7 @@
   ],
   "scripts": {
     "build:pegjs": "pegjs -o src/parser/dsl.pegjs.js src/parser/dsl.pegjs",
+    "build:typescript": "tsc",
     "lint": "run-s lint:typescript lint:ecmascript",
     "lint:ecmascript": "eslint --ext .mjs --ext .js ./",
     "lint:typescript": "eslint --config ./.eslintrc-typescript.yml --ext .ts ./",
