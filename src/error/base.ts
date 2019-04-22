@@ -4,14 +4,21 @@
  * @see https://github.com/necojackarc/extensible-custom-error
  */
 
+interface HaveStackError extends Error {
+    stack: string;
+}
+
+function hasStackPropError(error: Error): error is HaveStackError {
+    return typeof error.stack === 'string';
+}
+
 function mergeStackTrace(
     targetError: Error,
     previousError: Error,
 ): string | null {
-    const targetErrorStack = targetError.stack;
-    const previousErrorStack = previousError.stack;
-
-    if (targetErrorStack && previousErrorStack) {
+    if (hasStackPropError(targetError) && hasStackPropError(previousError)) {
+        const targetErrorStack = targetError.stack;
+        const previousErrorStack = previousError.stack;
         const targetStackTraceLines = targetErrorStack
             .split('\n')
             .map(line =>
@@ -83,9 +90,11 @@ export default class BaseError extends Error {
                 writable: false,
             });
 
-            const mergedStackTrace = mergeStackTrace(this, error);
-            if (mergedStackTrace) {
-                this.stack = mergedStackTrace;
+            if (hasStackPropError(this)) {
+                const mergedStackTrace = mergeStackTrace(this, error);
+                if (mergedStackTrace !== null) {
+                    this.stack = mergedStackTrace;
+                }
             }
         }
         return this;
