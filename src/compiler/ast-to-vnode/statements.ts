@@ -1,12 +1,39 @@
-function findFirstChildNode(node, expectedObject): object {
+import { AST } from '../../parser';
+import VNode from './vnode';
+
+function findFirstChildNode(
+    node: AST.Parent,
+    expectedObject: { type: 'coord' },
+): AST.CoordNode | undefined;
+function findFirstChildNode(
+    node: AST.Parent,
+    expectedObject: { type: 'size' },
+): AST.SizeNode | undefined;
+function findFirstChildNode(
+    node: AST.Parent,
+    expectedObject: { type: 'angle' },
+): AST.AngleNode | undefined;
+function findFirstChildNode(
+    node: AST.Parent,
+    expectedObject: object,
+): AST.Node | undefined {
     const expectedEntries = Object.entries(expectedObject);
     return node.children.find(
         childNode =>
-            childNode && expectedEntries.every(([k, v]) => v === childNode[k]),
+            childNode &&
+            expectedEntries.every(
+                ([k, v]) => v === (childNode as { [key: string]: unknown })[k],
+            ),
     );
 }
 
-function array2doublyLinkedList(array): object[] {
+interface DoublyLinkedList<T> {
+    prev: T | undefined;
+    value: T;
+    next: T | undefined;
+}
+
+function array2doublyLinkedList<T>(array: T[]): (DoublyLinkedList<T>)[] {
     return array.map((val, index, arr) => ({
         prev: arr[index - 1],
         value: val,
@@ -14,7 +41,18 @@ function array2doublyLinkedList(array): object[] {
     }));
 }
 
-function isStatementNode(node, statementName = null): boolean {
+function isObject(value: unknown): value is { [key: string]: unknown } {
+    return typeof value === 'object' && value !== null;
+}
+
+function isNode(value: unknown): value is AST.Node {
+    return isObject(value) && typeof value.type === 'string';
+}
+
+function isStatementNode(
+    node: AST.StatementValueNode,
+    statementName: null | string | string[] = null,
+): node is AST.StatementNode {
     if (node.type === 'statement') {
         if (statementName === null) {
             return true;
@@ -29,8 +67,16 @@ function isStatementNode(node, statementName = null): boolean {
     return false;
 }
 
-export function rect(statementNode): object {
-    const attrs = {};
+function isCoordNode(value: unknown): value is AST.CoordNode {
+    return isNode(value) && value.type === 'coord';
+}
+
+function isSymbolNode(value: unknown): value is AST.SymbolNode {
+    return isNode(value) && value.type === 'symbol';
+}
+
+export function rect(statementNode: AST.StatementNode): VNode {
+    const attrs: { [key: string]: string } = {};
 
     const coordNode = findFirstChildNode(statementNode, { type: 'coord' });
     if (coordNode) {
@@ -49,8 +95,8 @@ export function rect(statementNode): object {
     };
 }
 
-export function path(statementNode): object {
-    const attrs = {};
+export function path(statementNode: AST.StatementNode): VNode {
+    const attrs: { [key: string]: string } = {};
 
     const dataChildren = statementNode.children.filter(childNode =>
         /^(?:coord|statement)$/.test(childNode.type),
@@ -59,7 +105,7 @@ export function path(statementNode): object {
 
     attrs.d = dataLinkedList
         .map(({ prev: prevNode, value: childNode, next: nextNode }) => {
-            if (childNode.type === 'coord') {
+            if (isCoordNode(childNode)) {
                 const coordNode = childNode;
                 if (
                     !prevNode ||
@@ -68,7 +114,7 @@ export function path(statementNode): object {
                     return `M ${coordNode.value.x} ${coordNode.value.y}`;
                 }
             } else if (isStatementNode(childNode, 'line')) {
-                if (nextNode.type === 'coord') {
+                if (isCoordNode(nextNode)) {
                     const stopCoordNode = nextNode;
                     const stopCoord = `${stopCoordNode.value.x} ${
                         stopCoordNode.value.y
@@ -79,9 +125,9 @@ export function path(statementNode): object {
             } else if (isStatementNode(childNode, 'close')) {
                 return 'Z';
             } else if (isStatementNode(childNode, 'bezCurve')) {
-                if (nextNode.type === 'coord') {
+                if (isCoordNode(nextNode)) {
                     const coordList = childNode.children
-                        .filter(node => node.type === 'coord')
+                        .filter(isCoordNode)
                         .map(
                             coordNode =>
                                 `${coordNode.value.x} ${coordNode.value.y}`,
@@ -101,14 +147,17 @@ export function path(statementNode): object {
                     // TODO: 2以上の制御点を有するn次ベジェ曲線の生成
                 }
             } else if (isStatementNode(childNode, 'arc')) {
-                if (nextNode.type === 'coord') {
+                if (isCoordNode(nextNode)) {
                     const sizeNode = findFirstChildNode(childNode, {
                         type: 'size',
                     });
-                    const [rx, ry] = [
-                        sizeNode.value.width / 2,
-                        sizeNode.value.height / 2,
-                    ];
+                    // TODO: サイズ指定が省略されたarc文の動作をキチンと定義する
+                    const [rx, ry] = sizeNode
+                        ? [
+                              Number(sizeNode.value.width) / 2,
+                              Number(sizeNode.value.height) / 2,
+                          ]
+                        : [0, 0];
                     const radiusSize = `${rx} ${ry}`;
 
                     const angleNode = findFirstChildNode(childNode, {
@@ -117,14 +166,17 @@ export function path(statementNode): object {
                     const xAxisRotation = angleNode ? angleNode.value : 0;
 
                     const sizeAttrValueNode = childNode.attributes.size;
+                    // TODO: sizeAttrValueNodeがSymbol-type Valueではない場合のエラー処理
                     const largeArcFlag =
-                        sizeAttrValueNode && sizeAttrValueNode.value === 'large'
+                        isSymbolNode(sizeAttrValueNode) &&
+                        sizeAttrValueNode.value === 'large'
                             ? 1
                             : 0;
 
                     const dirAttrValueNode = childNode.attributes.dir;
+                    // TODO: dirAttrValueNodeがSymbol-type Valueではない場合のエラー処理
                     const sweepFlag =
-                        dirAttrValueNode &&
+                        isSymbolNode(dirAttrValueNode) &&
                         /^(?:turn-left|clockwise)$/.test(dirAttrValueNode.value)
                             ? 1
                             : 0;
@@ -142,82 +194,106 @@ export function path(statementNode): object {
                     );
                 }
             } else if (isStatementNode(childNode, ['circle', 'ellipse'])) {
-                const currentCoordNode = prevNode;
-                const currentCoord = `${currentCoordNode.value.x} ${
-                    currentCoordNode.value.y
-                }`;
+                // TODO: 開始座標（prevNode）が省略されたcircle,ellipse文の動作をキチンと定義する
+                if (isCoordNode(prevNode)) {
+                    const currentCoordNode = prevNode;
+                    const currentCoord = `${currentCoordNode.value.x} ${
+                        currentCoordNode.value.y
+                    }`;
 
-                const diagonalCoordNode = findFirstChildNode(childNode, {
-                    type: 'coord',
-                });
-                const diagonalCoord = `${diagonalCoordNode.value.x} ${
-                    diagonalCoordNode.value.y
-                }`;
-
-                const pathRotateAttrValueNode =
-                    childNode.attributes['path-rotate'];
-
-                const width = Math.abs(
-                    diagonalCoordNode.value.x - currentCoordNode.value.x,
-                );
-                const height = Math.abs(
-                    diagonalCoordNode.value.y - currentCoordNode.value.y,
-                );
-                const sweepFlag =
-                    pathRotateAttrValueNode &&
-                    /^(?:turn-left|clockwise)$/.test(
-                        pathRotateAttrValueNode.value,
-                    )
-                        ? 1
-                        : 0;
-
-                if (isStatementNode(childNode, 'circle')) {
-                    const diameter = Math.sqrt(width ** 2 + height ** 2);
-                    const radius = diameter / 2;
-                    const radiusSize = `${radius} ${radius}`;
-
-                    return (
-                        `A ${radiusSize}\n` +
-                        `  0\n` +
-                        `  0 ${sweepFlag}\n` +
-                        `  ${diagonalCoord}\n` +
-                        `A ${radiusSize}\n` +
-                        `  0\n` +
-                        `  0 ${sweepFlag}\n` +
-                        `  ${currentCoord}`
-                    );
-                }
-                if (isStatementNode(childNode, 'ellipse')) {
-                    const sizeNode = findFirstChildNode(childNode, {
-                        type: 'size',
+                    const diagonalCoordNode = findFirstChildNode(childNode, {
+                        type: 'coord',
                     });
+                    // TODO: 対角位置の座標（diagonalCoordNode）が省略されたcircle,ellipse文の動作をキチンと定義する
+                    if (diagonalCoordNode) {
+                        const diagonalCoord = `${diagonalCoordNode.value.x} ${
+                            diagonalCoordNode.value.y
+                        }`;
 
-                    // TODO: もっとちゃんとした式に変える
-                    const { width: xRatio, height: yRatio } = sizeNode.value;
-                    const [rx, ry] = (() => {
-                        if (height === 0) {
-                            return [width / xRatio, (width / xRatio) * yRatio];
+                        const pathRotateAttrValueNode =
+                            childNode.attributes['path-rotate'];
+
+                        const width = Math.abs(
+                            Number(diagonalCoordNode.value.x) -
+                                Number(currentCoordNode.value.x),
+                        );
+                        const height = Math.abs(
+                            Number(diagonalCoordNode.value.y) -
+                                Number(currentCoordNode.value.y),
+                        );
+                        // TODO: pathRotateAttrValueNodeがSymbol-type Valueではない場合のエラー処理
+                        const sweepFlag =
+                            isSymbolNode(pathRotateAttrValueNode) &&
+                            /^(?:turn-left|clockwise)$/.test(
+                                pathRotateAttrValueNode.value,
+                            )
+                                ? 1
+                                : 0;
+
+                        if (isStatementNode(childNode, 'circle')) {
+                            const diameter = Math.sqrt(
+                                width ** 2 + height ** 2,
+                            );
+                            const radius = diameter / 2;
+                            const radiusSize = `${radius} ${radius}`;
+
+                            return (
+                                `A ${radiusSize}\n` +
+                                `  0\n` +
+                                `  0 ${sweepFlag}\n` +
+                                `  ${diagonalCoord}\n` +
+                                `A ${radiusSize}\n` +
+                                `  0\n` +
+                                `  0 ${sweepFlag}\n` +
+                                `  ${currentCoord}`
+                            );
                         }
-                        if (width === 0) {
-                            return [
-                                height / yRatio,
-                                (height / yRatio) * xRatio,
+                        if (isStatementNode(childNode, 'ellipse')) {
+                            const sizeNode = findFirstChildNode(childNode, {
+                                type: 'size',
+                            });
+
+                            // TODO: 楕円の大きさの比率（sizeNode）が省略されたellipse文の動作をキチンと定義する
+                            // TODO: もっとちゃんとした式に変える
+                            const {
+                                width: xRatioStr,
+                                height: yRatioStr,
+                            } = sizeNode
+                                ? sizeNode.value
+                                : { width: '1', height: '1' };
+                            const [xRatio, yRatio] = [
+                                Number(xRatioStr),
+                                Number(yRatioStr),
                             ];
-                        }
-                        return [NaN, NaN];
-                    })().map(num => num / 2);
-                    const radiusSize = `${rx} ${ry}`;
+                            const [rx, ry] = (() => {
+                                if (height === 0) {
+                                    return [
+                                        width / xRatio,
+                                        (width / xRatio) * yRatio,
+                                    ];
+                                }
+                                if (width === 0) {
+                                    return [
+                                        height / yRatio,
+                                        (height / yRatio) * xRatio,
+                                    ];
+                                }
+                                return [NaN, NaN];
+                            })().map(num => num / 2);
+                            const radiusSize = `${rx} ${ry}`;
 
-                    return (
-                        `A ${radiusSize}\n` +
-                        `  0\n` +
-                        `  0 ${sweepFlag}\n` +
-                        `  ${diagonalCoord}\n` +
-                        `A ${radiusSize}\n` +
-                        `  0\n` +
-                        `  0 ${sweepFlag}\n` +
-                        `  ${currentCoord}`
-                    );
+                            return (
+                                `A ${radiusSize}\n` +
+                                `  0\n` +
+                                `  0 ${sweepFlag}\n` +
+                                `  ${diagonalCoord}\n` +
+                                `A ${radiusSize}\n` +
+                                `  0\n` +
+                                `  0 ${sweepFlag}\n` +
+                                `  ${currentCoord}`
+                            );
+                        }
+                    }
                 }
             }
 
