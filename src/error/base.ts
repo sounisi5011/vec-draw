@@ -27,6 +27,16 @@ function mergeStackTrace(
     return null;
 }
 
+interface V8ErrorConstructor extends ErrorConstructor {
+    captureStackTrace(error: Error, errorConstructor: Function): void;
+}
+
+function hasCaptureStackTrace(errorConstructor: {
+    [key: string]: unknown;
+}): errorConstructor is V8ErrorConstructor {
+    return typeof errorConstructor.captureStackTrace === 'function';
+}
+
 export default class BaseError extends Error {
     public previous: Error | null = null;
 
@@ -59,9 +69,8 @@ export default class BaseError extends Error {
             },
         });
 
-        const { captureStackTrace } = Error as any;
-        if (typeof captureStackTrace === 'function') {
-            captureStackTrace.call(Error, this, constructor);
+        if (hasCaptureStackTrace(Error)) {
+            Error.captureStackTrace(this, constructor);
         }
     }
 
