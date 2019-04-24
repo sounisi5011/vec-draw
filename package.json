@@ -18,7 +18,9 @@
     "dist/"
   ],
   "scripts": {
-    "build:pegjs": "pegjs -o src/parser/dsl.pegjs.js src/parser/dsl.pegjs",
+    "build:pegjs": "run-s build:pegjs:generate build:pegjs:copy",
+    "build:pegjs:copy": "cpx './src/**/*.{js,d.ts}' ./dist",
+    "build:pegjs:generate": "pegjs -o src/parser/dsl.pegjs.js src/parser/dsl.pegjs",
     "build:typescript": "run-s build:typescript:commonjs build:typescript:esm",
     "build:typescript:commonjs": "tsc",
     "build:typescript:esm": "run-s build:typescript:esm:tsc build:typescript:esm:rename build:typescript:esm:move",
@@ -32,7 +34,7 @@
     "lint:typescript:tsc": "run-s lint:typescript:tsc:*",
     "lint:typescript:tsc:src": "tsc --noEmit",
     "lint:typescript:tsc:test": "tsc -p ./test/",
-    "test": "run-s build:pegjs lint test:ava",
+    "test": "run-s build:pegjs:generate lint test:ava",
     "test:ava": "ava"
   },
   "devDependencies": {
