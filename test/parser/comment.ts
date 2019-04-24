@@ -1,7 +1,9 @@
 import test from 'ava';
 import { parse } from '../../src/parser';
 
-const newlineCallback = (callback): void => {
+const newlineCallback = (
+    callback: (nlData: [string, string]) => void,
+): void => {
     const newlineMap = {
         EMPTY: '',
         LF: '\n',
