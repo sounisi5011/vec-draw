@@ -19,7 +19,10 @@
   ],
   "scripts": {
     "build:pegjs": "pegjs -o src/parser/dsl.pegjs.js src/parser/dsl.pegjs",
-    "build:typescript": "tsc",
+    "build:typescript": "run-s build:typescript:commonjs build:typescript:esm",
+    "build:typescript:commonjs": "tsc",
+    "build:typescript:esm": "run-s build:typescript:esm:tsc",
+    "build:typescript:esm:tsc": "tsc -p ./tsconfig.esm.json",
     "lint": "run-s lint:typescript lint:ecmascript",
     "lint:ecmascript": "eslint --ext .mjs --ext .js ./",
     "lint:typescript": "run-s lint:typescript:eslint lint:typescript:tsc",
