@@ -39,6 +39,7 @@
     "test:ava": "ava"
   },
   "devDependencies": {
+    "@types/node": "11.x",
     "@typescript-eslint/eslint-plugin": "1.x",
     "@typescript-eslint/parser": "1.x",
     "ava": "^1.2.0",
