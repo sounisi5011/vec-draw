@@ -61,6 +61,7 @@
     "prettier-package-json": "^2.0.1",
     "renamer": "1.x",
     "rimraf": "2.x",
+    "ts-node": "8.x",
     "typescript": "3.x"
   },
   "engines": {
