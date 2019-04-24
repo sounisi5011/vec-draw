@@ -68,11 +68,12 @@
     "node": ">=8.10.0"
   },
   "ava": {
+    "compileEnhancements": false,
     "require": [
-      "esm"
+      "ts-node/register"
     ],
     "extensions": [
-      "mjs"
+      "ts"
     ]
   },
   "husky": {
