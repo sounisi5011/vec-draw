@@ -1,8 +1,19 @@
-import test from 'ava';
+import test, { ThrowsExpectation } from 'ava';
 import { parse } from '../../src/parser';
 import { XMLError } from '../../src';
 
-function throwsAssert(expectedDataList, callback): void {
+interface ThrowsAssertExpectedData<T> extends ThrowsExpectation {
+    data: T;
+}
+
+interface ThrowsAssertCallback<T> {
+    (data: T, expected: ThrowsExpectation, msg: string): void;
+}
+
+function throwsAssert<T>(
+    expectedDataList: ThrowsAssertExpectedData<T>[],
+    callback: ThrowsAssertCallback<T>,
+): void {
     expectedDataList.forEach(expectedData => {
         callback(
             expectedData.data,
