@@ -1,5 +1,5 @@
 import test from 'ava';
-import * as api from '../src/index';
+import * as api from '../dist/index';
 
 test('公開APIの存在検証', t => {
     const apiNameList = [

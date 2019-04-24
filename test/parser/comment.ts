@@ -1,5 +1,5 @@
 import test from 'ava';
-import { parse } from '../../src/parser';
+import { parse } from '../../dist/parser';
 
 const newlineCallback = (
     callback: (nlData: [string, string]) => void,

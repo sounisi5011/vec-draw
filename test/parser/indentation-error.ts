@@ -1,5 +1,5 @@
 import test from 'ava';
-import { parse } from '../../src/parser';
+import { parse } from '../../dist/parser';
 
 test('余分なインデント / SP SP ≠ SP SP SP', async t => {
     t.throws(
