@@ -4,6 +4,7 @@
     "module": "ESNext",
     "moduleResolution": "Node",
     "declaration": false,
-    "declarationMap": false
+    "declarationMap": false,
+    "outDir": "./dist.esm"
   }
 }
