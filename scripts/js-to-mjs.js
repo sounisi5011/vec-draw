@@ -1,5 +1,6 @@
 const fs = require('fs');
 const globCallback = require('glob');
+const makeDir = require('make-dir');
 const path = require('path');
 const util = require('util');
 
@@ -62,11 +63,13 @@ function logOutput(line) {
 }
 
 async function createFile(filepath, contents) {
+  await makeDir(path.dirname(filepath));
   await fsWriteFile(filepath, contents);
   // logOutput(cwdRelative`create ${filepath}`);
 }
 
 async function renameFile(fromPath, toPath) {
+  await makeDir(path.dirname(toPath));
   await fsRename(fromPath, toPath);
   // logOutput(cwdRelative`rename ${fromPath} ${toPath}`);
 }
@@ -79,16 +82,27 @@ async function deleteFile(filepath) {
 /**
  * @return {string|null} リネーム後のパス、あるいは、失敗した場合にnull
  */
-async function renameSourceMap(sourceMapFilepath, newJsFilepath) {
-  const sourceMapContents = await getFileContents(sourceMapFilepath, 'utf8');
+async function renameSourceMap({
+  sourceMap: sourceMapFilepath,
+  jsFilepath,
+  srcDir: sourceDirpath,
+  destDtr: destDirpath,
+}) {
+  const oldSourceMapFullpath = path.resolve(sourceDirpath, sourceMapFilepath);
+  const sourceMapContents = await getFileContents(oldSourceMapFullpath, 'utf8');
 
   if (sourceMapContents !== null) {
     /*
      * SourceMapを開けた（アクセス権限のあるローカルファイルの）場合、リネームを試みる
      */
     const sourceMapData = JSON.parse(sourceMapContents);
-    const newSourceMapFilepath = replaceMapPath(sourceMapFilepath);
-    const newFileField = filepathRelative(newSourceMapFilepath, newJsFilepath);
+    const newSourceMapFullpath = path.resolve(
+      destDirpath,
+      replaceMapPath(sourceMapFilepath),
+    );
+
+    const newJsFullpath = path.resolve(destDirpath, jsFilepath);
+    const newFileField = filepathRelative(newSourceMapFullpath, newJsFullpath);
 
     if (newFileField !== sourceMapData.file) {
       /*
@@ -96,30 +110,35 @@ async function renameSourceMap(sourceMapFilepath, newJsFilepath) {
        */
       sourceMapData.file = newFileField;
       const newSourceMapContents = JSON.stringify(sourceMapData);
-      await createFile(newSourceMapFilepath, newSourceMapContents);
-      await deleteFile(sourceMapFilepath);
+      await createFile(newSourceMapFullpath, newSourceMapContents);
+      await deleteFile(oldSourceMapFullpath);
     } else {
       /*
        * fileフィールドが同じ場合、リネームのみを行う
        */
-      await renameFile(sourceMapFilepath, newSourceMapFilepath);
+      await renameFile(oldSourceMapFullpath, newSourceMapFullpath);
     }
 
-    return newSourceMapFilepath;
+    return newSourceMapFullpath;
   }
 
   return null;
 }
 
 (async () => {
-  const targetDirPath = path.resolve(process.argv[2]);
+  const sourceDirFullpath = path.resolve(process.argv[2]);
+  const destDirFullpath =
+    process.argv.length > 3 ? path.resolve(process.argv[3]) : sourceDirFullpath;
 
-  const tasks = (await glob('**/*.js', { cwd: targetDirPath }))
-    .map(jsFilepath => path.join(targetDirPath, jsFilepath))
-    .map(async jsFilepath => {
-      const newJsFilepath = replaceJsPath(jsFilepath);
+  const tasks = (await glob('**/*.js', { cwd: sourceDirFullpath })).map(
+    async jsFilepath => {
+      const oldJsFullpath = path.resolve(sourceDirFullpath, jsFilepath);
+      const newJsFullpath = path.resolve(
+        destDirFullpath,
+        replaceJsPath(jsFilepath),
+      );
 
-      const jsContents = await fsReadFile(jsFilepath, 'utf8');
+      const jsContents = await fsReadFile(oldJsFullpath, 'utf8');
       const match = sourceMapURLRegExp.exec(jsContents);
 
       if (match) {
@@ -132,12 +151,14 @@ async function renameSourceMap(sourceMapFilepath, newJsFilepath) {
           path.dirname(jsFilepath),
           sourceMapURL,
         );
-        const newSourceMapFilepath = await renameSourceMap(
-          sourceMapFilepath,
-          newJsFilepath,
-        );
+        const newSourceMapFullpath = await renameSourceMap({
+          sourceMap: sourceMapFilepath,
+          jsFilepath: newJsFullpath,
+          srcDir: sourceDirFullpath,
+          destDtr: destDirFullpath,
+        });
 
-        if (newSourceMapFilepath !== null) {
+        if (newSourceMapFullpath !== null) {
           /*
            * SourceMapファイルのリネームに成功した場合、
            * スクリプトファイルに含まれるSourceMapのURLを新しい名前に置換する
@@ -146,30 +167,31 @@ async function renameSourceMap(sourceMapFilepath, newJsFilepath) {
           const urlEndIndex = urlStartIndex + sourceMapURL.length;
           const newJsContents = substringReplace(
             jsContents,
-            filepathRelative(newJsFilepath, newSourceMapFilepath),
+            filepathRelative(newJsFullpath, newSourceMapFullpath),
             urlStartIndex,
             urlEndIndex,
           );
 
-          await createFile(newJsFilepath, newJsContents);
-          await deleteFile(jsFilepath);
+          await createFile(newJsFullpath, newJsContents);
+          await deleteFile(oldJsFullpath);
         } else {
           /*
            * SourceMapファイルのリネームが失敗した場合、
            * ファイルをただ移動する
            */
-          await renameFile(jsFilepath, newJsFilepath);
+          await renameFile(oldJsFullpath, newJsFullpath);
         }
       } else {
         /*
          * SourceMapのURLが見つからなかった場合、
          * ファイルをただ移動する
          */
-        await renameFile(jsFilepath, newJsFilepath);
+        await renameFile(oldJsFullpath, newJsFullpath);
       }
 
-      logOutput(cwdRelative`${jsFilepath}\n→ ${newJsFilepath}\n`);
-    });
+      logOutput(cwdRelative`${oldJsFullpath}\n→ ${newJsFullpath}\n`);
+    },
+  );
 
   try {
     await Promise.all(tasks);
