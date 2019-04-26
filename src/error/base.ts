@@ -3,6 +3,7 @@
  * @see https://qiita.com/necojackarc/items/c77cf3b5368b9d33601b
  * @see https://github.com/necojackarc/extensible-custom-error
  * @see https://github.com/Microsoft/TypeScript-wiki/blob/master/Breaking-Changes.md#extending-built-ins-like-error-array-and-map-may-no-longer-work
+ * @see https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-2.html#support-for-newtarget
  */
 
 interface HaveStackError extends Error {
@@ -51,7 +52,7 @@ export default class BaseError extends Error {
     public constructor(message: string) {
         super(message);
 
-        Object.setPrototypeOf(this, BaseError.prototype);
+        Object.setPrototypeOf(this, new.target.prototype);
 
         const { constructor } = this;
 
