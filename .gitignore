@@ -11,3 +11,5 @@ yarn-error.log*
 /dist/
 /dist.*/
 *.pegjs.js
+/test/**/*.mjs
+/test/**/*.mjs.map
