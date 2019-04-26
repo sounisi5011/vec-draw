@@ -105,5 +105,6 @@
       "eslint --config ./.eslintrc-typescript.yml --fix",
       "git add"
     ]
-  }
+  },
+  "types": "dist/index.d.ts"
 }
