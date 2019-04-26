@@ -36,8 +36,11 @@
     "lint:typescript:test": "npm-run-all --parallel build:pegjs build:typescript:commonjs --parallel lint:typescript:test:*",
     "lint:typescript:test:eslint": "eslint --config ./.eslintrc-typescript.yml --ext .ts ./test",
     "lint:typescript:test:tsc": "tsc -p ./test/ --noEmit",
-    "test": "run-s lint build:typescript:esm test:ava",
-    "test:ava": "ava"
+    "test": "run-s lint build:typescript:esm test:build test:ava",
+    "test:ava": "ava",
+    "test:build": "run-s test:build:tsc test:build:rename",
+    "test:build:rename": "node ./scripts/js-to-mjs.js ./test",
+    "test:build:tsc": "tsc -p ./test/"
   },
   "devDependencies": {
     "@types/node": "11.x",
