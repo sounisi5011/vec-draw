@@ -29,7 +29,7 @@
     "build:typescript:esm:rename": "node ./scripts/js-to-mjs.js ./dist.esm/ ./dist/",
     "build:typescript:esm:tsc": "tsc -p ./tsconfig.esm.json --outDir ./dist.esm/",
     "clean": "run-p clean:*",
-    "clean:build": "rimraf './dist*/' './**/*.pegjs.js'",
+    "clean:build": "rimraf './dist{,.*}/' './**/*.pegjs.js'",
     "lint": "run-p lint:*",
     "lint:ecmascript": "eslint --ext .mjs --ext .js ./",
     "lint:typescript": "run-p lint:typescript:*",
