@@ -1,12 +1,6 @@
 {
   "extends": "../tsconfig.base",
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "Node",
-    "types": ["node"],
-    "declaration": false,
-    "declarationMap": false,
-    "sourceMap": false
+    "types": ["node"]
   }
 }
