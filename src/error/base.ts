@@ -2,6 +2,7 @@
  * @see https://qiita.com/Mizunashi_Mana/items/c533fbb51bfee491b0e7
  * @see https://qiita.com/necojackarc/items/c77cf3b5368b9d33601b
  * @see https://github.com/necojackarc/extensible-custom-error
+ * @see https://github.com/Microsoft/TypeScript-wiki/blob/master/Breaking-Changes.md#extending-built-ins-like-error-array-and-map-may-no-longer-work
  */
 
 interface HaveStackError extends Error {
@@ -49,6 +50,8 @@ export default class BaseError extends Error {
 
     public constructor(message: string) {
         super(message);
+
+        Object.setPrototypeOf(this, BaseError.prototype);
 
         const { constructor } = this;
 
