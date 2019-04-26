@@ -18,6 +18,7 @@
     "dist/"
   ],
   "scripts": {
+    "build": "npm-run-all clean:build --parallel build:*",
     "build:pegjs": "run-s build:pegjs:generate build:pegjs:copy",
     "build:pegjs:copy": "cpx './src/**/*.{js,d.ts}' ./dist",
     "build:pegjs:generate": "pegjs -o src/parser/dsl.pegjs.js src/parser/dsl.pegjs",
