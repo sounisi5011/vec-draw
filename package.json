@@ -29,7 +29,6 @@
     "build:typescript:esm:tsc": "tsc -p ./tsconfig.esm.json",
     "clean": "run-p clean:*",
     "clean:build": "rimraf 'dist*/' '**/*.pegjs.js'",
-    "clean:test": "rimraf 'test/**/*.{mjs,mjs.map}'",
     "lint": "run-p lint:*",
     "lint:ecmascript": "eslint --ext .mjs --ext .js ./",
     "lint:typescript": "run-p lint:typescript:*",
@@ -40,11 +39,7 @@
     "lint:typescript:test:eslint": "eslint --config ./.eslintrc-typescript.yml --ext .ts ./test",
     "lint:typescript:test:tsc": "tsc -p ./test/ --noEmit",
     "test": "run-s lint test:ava",
-    "test:ava": "ava",
-    "test:build": "run-s test:build:tsc test:build:rename test:build:clean",
-    "test:build:clean": "rimraf ./test.esm",
-    "test:build:rename": "node ./scripts/js-to-mjs.js ./test.esm ./test",
-    "test:build:tsc": "tsc -p ./test/ --outDir ./test.esm"
+    "test:ava": "ava"
   },
   "devDependencies": {
     "@types/node": "11.x",
