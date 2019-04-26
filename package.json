@@ -75,12 +75,11 @@
     "node": ">=8.10.0"
   },
   "ava": {
-    "compileEnhancements": false,
     "require": [
-      "ts-node/register/transpile-only"
+      "esm"
     ],
     "extensions": [
-      "ts"
+      "mjs"
     ]
   },
   "husky": {
