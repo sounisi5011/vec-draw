@@ -27,7 +27,7 @@
     "build:typescript:esm": "run-s build:typescript:esm:tsc build:typescript:esm:rename build:typescript:esm:clean",
     "build:typescript:esm:clean": "rimraf ./dist.esm",
     "build:typescript:esm:rename": "node ./scripts/js-to-mjs.js ./dist.esm ./dist",
-    "build:typescript:esm:tsc": "tsc -p ./tsconfig.esm.json",
+    "build:typescript:esm:tsc": "tsc -p ./tsconfig.esm.json --outDir ./dist.esm",
     "clean": "run-p clean:*",
     "clean:build": "rimraf 'dist*/' '**/*.pegjs.js'",
     "lint": "run-p lint:*",
