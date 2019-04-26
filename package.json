@@ -36,7 +36,7 @@
     "lint:typescript:src": "npm-run-all build:pegjs:generate --parallel lint:typescript:src:*",
     "lint:typescript:src:eslint": "eslint --config ./.eslintrc-typescript.yml --ext .ts ./src",
     "lint:typescript:src:tsc": "tsc --noEmit",
-    "lint:typescript:test": "npm-run-all --parallel build:pegjs build:typescript:commonjs --parallel lint:typescript:test:*",
+    "lint:typescript:test": "run-p lint:typescript:test:*",
     "lint:typescript:test:eslint": "eslint --config ./.eslintrc-typescript.yml --ext .ts ./test",
     "lint:typescript:test:tsc": "tsc -p ./test/ --noEmit",
     "test": "run-s lint test:ava",
