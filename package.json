@@ -38,9 +38,10 @@
     "lint:typescript:test:tsc": "tsc -p ./test/ --noEmit",
     "test": "run-s lint build:typescript:esm test:build test:ava",
     "test:ava": "ava",
-    "test:build": "run-s test:build:tsc test:build:rename",
-    "test:build:rename": "node ./scripts/js-to-mjs.js ./test",
-    "test:build:tsc": "tsc -p ./test/"
+    "test:build": "run-s test:build:tsc test:build:rename test:build:clean",
+    "test:build:clean": "rimraf ./test.esm",
+    "test:build:rename": "node ./scripts/js-to-mjs.js ./test.esm ./test",
+    "test:build:tsc": "tsc -p ./test/ --outDir ./test.esm"
   },
   "devDependencies": {
     "@types/node": "11.x",
