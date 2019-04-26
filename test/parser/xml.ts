@@ -1,6 +1,6 @@
 import test, { ThrowsExpectation } from 'ava';
-import { parse } from '../../dist/parser';
-import { XMLError } from '../../dist';
+import { parse } from '../../src/parser';
+import { XMLError } from '../../src';
 
 interface ThrowsAssertExpectedData<T> extends ThrowsExpectation {
     data: T;
