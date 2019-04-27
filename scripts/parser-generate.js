@@ -53,7 +53,7 @@ async function createFile(filepath, contents) {
 
     const outputType = matchResult[1].trim();
     const ruleName = matchResult[2];
-    returnTypes[ruleName] = outputType;
+    returnTypes[ruleName] = `${outputType} | {}`;
   }
 
   const options = {
