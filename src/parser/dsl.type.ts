@@ -26,10 +26,18 @@ export interface StatementNode extends Parent {
     type: 'statement';
     name: string;
     nameSymbol: SymbolNode;
-    attributes: { [key: string]: ValueNode };
-    attributeNodes: { [key: string]: AttributeNode };
+    attributes: StatementAttributes;
+    attributeNodes: StatementAttributeNodes;
     children: Exclude<StatementValueNode, AttributeNode | CommentNode>[];
     fullChildren: StatementValueNode[];
+}
+
+export interface StatementAttributes {
+    [key: string]: ValueNode;
+}
+
+export interface StatementAttributeNodes {
+    [key: string]: AttributeNode;
 }
 
 export type StatementValueNode =
