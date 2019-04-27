@@ -1,19 +1,23 @@
 /*:header
 
-import * as AST from './dsl.type.ts';
+import * as AST from './dsl.type';
 
 */
 
 {
-  const indentList = [];
+  const indentList: string[] = [];
   let indentStart = false;
+
+  function filterNullable<T>(value: T): value is Exclude<T, null | undefined> {
+    return value !== null && value !== undefined;
+  }
 
   /**
    * @param {number} [startOffset=location().start.offset]
    * @param {number} [endOffset=location().end.offset]
    * @return {{line: number, column: number, offset: number}}
    */
-  function position(startOffset = null, endOffset = null) {
+  function position(startOffset?: number, endOffset?: number) {
     if (typeof startOffset !== 'number' || typeof endOffset !== 'number') {
       const locationData = location();
       if (typeof startOffset !== 'number') {
@@ -44,10 +48,11 @@ import * as AST from './dsl.type.ts';
    *
    * TODO: pegjsが生成するpeg$computePosDetailsのような、Pointのキャッシュコード
    */
-  function computePoint(offsetInt) {
+  function computePoint(offsetInt: number) {
     const inputData = input.substring(0, offsetInt);
     const lineBreakCount = (inputData.match(/\r\n?|\n/g) || []).length;
-    const currentLineText = /(?:^|\r\n?|\n)([^\r\n]*)$/.exec(inputData)[1];
+    const currentLineMatch = /(?:^|\r\n?|\n)([^\r\n]*)$/.exec(inputData);
+    const currentLineText = currentLineMatch ? currentLineMatch[1] : '';
 
     return {
       line: lineBreakCount + 1,
@@ -60,35 +65,44 @@ import * as AST from './dsl.type.ts';
 //: AST.StatementValueNode[]
 start
   = st:statement_child_line stl:statement_children EOL? {
-      return [].concat(st, ...stl).filter(Boolean);
+      return ((st: AST.StatementValueNode | null, stl: (AST.StatementValueNode | null)[]) => {
+        return [st, ...stl].filter(filterNullable);
+      })(st, stl);
     }
 
 //: AST.StatementNode
 statement "DSL Statement"
   = name:symbol st:statement_attr* comment:(SP+ SingleLineComment / SP*) StartIndent stl:statement_children {
-      const fullChildren = [].concat(...st, ...comment, ...stl).filter(Boolean);
-      const [attributes, attributeNodes, children] = fullChildren
-        .reduce(([attributes, attributeNodes, children], childNode) => {
-          if (childNode.type === 'attr') {
-            const attrNode = childNode;
-            attributes[attrNode.name] = attrNode.value;
-            attributeNodes[attrNode.name] = attrNode;
-          } else if (childNode.type !== 'comment') {
-            children.push(childNode);
-          }
-          return [attributes, attributeNodes, children];
-        }, [{}, {}, []]);
+      return ((
+          name: AST.SymbolNode,
+          st: (AST.XMLNode | AST.AttributeNode | AST.ValueNode)[],
+          comment: (AST.CommentNode | undefined)[],
+          stl: (AST.StatementValueNode | null)[]
+        ) => {
+        const fullChildren: AST.StatementValueNode[] = [...st, ...comment, ...stl].filter(filterNullable);
+        const [attributes, attributeNodes, children] = fullChildren
+          .reduce(([attributes, attributeNodes, children], childNode) => {
+            if (childNode.type === 'attr') {
+              const attrNode = childNode;
+              attributes[attrNode.name] = attrNode.value;
+              attributeNodes[attrNode.name] = attrNode;
+            } else if (childNode.type !== 'comment') {
+              children.push(childNode);
+            }
+            return [attributes, attributeNodes, children];
+          }, [{} as AST.StatementAttributes, {} as AST.StatementAttributeNodes, [] as AST.StatementValueNode[]]);
 
-      return {
-        type: 'statement',
-        name: name.value,
-        nameSymbol: name,
-        attributes: attributes,
-        attributeNodes: attributeNodes,
-        children: children,
-        fullChildren: fullChildren,
-        position: position(),
-      };
+        return {
+          type: 'statement',
+          name: name.value,
+          nameSymbol: name,
+          attributes: attributes,
+          attributeNodes: attributeNodes,
+          children: children,
+          fullChildren: fullChildren,
+          position: position(),
+        };
+      })(name, st, comment, stl);
     }
 
 //: AST.XMLNode | AST.AttributeNode | AST.ValueNode
@@ -306,7 +320,7 @@ StartIndent
       return true;
     }
 
-//: AST.XMLNode
+//: AST.XMLNode | void
 XMLStatement "DSL XML Value"
   = contentValue:(XMLCdata / XMLComment / XMLElement) end:XMLElemEnd? {
       if (end) {
@@ -364,7 +378,10 @@ XMLElement "XML Element"
 //: AST.ElementNode
 XMLElemSelfClose
   = "<" nodeName:$([a-z]i [a-z0-9-]i*) attrList:(XMLAttr / SP / EOL)* "/>" {
-      return {
+      return ((
+        nodeName: string,
+        attrList: ({ name: string, value: string } | string | undefined)[],
+      ) => ({
         type: "element",
         tagName: nodeName,
         properties: attrList.reduce((properties, attr) => {
@@ -373,16 +390,19 @@ XMLElemSelfClose
             properties[attrName] = attrValue;
           }
           return properties;
-        }, {}),
+        }, {} as AST.ElementProperties),
         children: [],
         position: position()
-      };
+      }))(nodeName, attrList);
     }
 
 //: { name: string, attr: AST.ElementProperties }
 XMLElemStart
   = "<" nodeName:$([a-z]i [a-z0-9-]i*) attrList:(XMLAttr / SP / EOL)* ">" {
-      return {
+      return ((
+        nodeName: string,
+        attrList: ({ name: string, value: string } | string | undefined)[],
+      ) => ({
         name: nodeName,
         attr: attrList.reduce((properties, attr) => {
           if (typeof attr === "object") {
@@ -390,8 +410,8 @@ XMLElemStart
             properties[attrName] = attrValue;
           }
           return properties;
-        }, {})
-      };
+        }, {} as AST.ElementProperties)
+      }))(nodeName, attrList);
     }
 
 //: { name: string, position: IFileRange }
