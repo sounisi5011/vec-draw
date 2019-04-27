@@ -1,4 +1,5 @@
-import parser, { AST } from './parser/dsl.pegjs.js';
+import * as parser from './parser/dsl.pegjs';
+import * as AST from './parser/dsl.type';
 import { IndentationError, XMLError } from './error';
 
 interface IndentationErrorDescription {
