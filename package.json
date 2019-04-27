@@ -1,22 +1,23 @@
 {
   "name": "@sounisi5011/vec-draw",
+  "version": "0.0.1",
   "description": "SVGを書きやすくするDSL",
-  "license": "MIT",
-  "author": "sounisi5011",
   "homepage": "https://github.com/sounisi5011/vec-draw",
+  "bugs": {
+    "url": "https://github.com/sounisi5011/vec-draw/issues"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sounisi5011/vec-draw.git"
   },
-  "bugs": {
-    "url": "https://github.com/sounisi5011/vec-draw/issues"
-  },
-  "version": "0.0.1",
-  "main": "dist/index",
-  "module": "dist/index.mjs",
+  "license": "MIT",
+  "author": "sounisi5011",
   "files": [
     "dist/"
   ],
+  "main": "dist/index",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "npm-run-all clean:build --parallel build:*",
     "build:pegjs": "run-s build:pegjs:generate build:pegjs:copy",
@@ -42,7 +43,32 @@
     "test": "run-s lint test:ava",
     "test:ava": "ava"
   },
-  "types": "dist/index.d.ts",
+  "husky": {
+    "hooks": {
+      "pre-commit": "node scripts/commit-ban.js && lint-staged",
+      "pre-push": "node scripts/push-ban.js",
+      "prepare-commit-msg": "node scripts/merge-ban.js && node scripts/commit-template.js"
+    }
+  },
+  "lint-staged": {
+    "!(package).json|*.{yaml,yml}": [
+      "prettier --write",
+      "git add"
+    ],
+    "*.ts": [
+      "eslint --config ./.eslintrc-typescript.yml --fix",
+      "git add"
+    ],
+    "*.{mjs,js}": [
+      "eslint --fix",
+      "git add"
+    ],
+    "package.json": [
+      "prettier-package-json --write",
+      "sort-package-json",
+      "git add"
+    ]
+  },
   "devDependencies": {
     "@types/node": "11.x",
     "@typescript-eslint/eslint-plugin": "1.x",
@@ -81,31 +107,6 @@
     ],
     "extensions": [
       "ts"
-    ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "node scripts/commit-ban.js && lint-staged",
-      "pre-push": "node scripts/push-ban.js",
-      "prepare-commit-msg": "node scripts/merge-ban.js && node scripts/commit-template.js"
-    }
-  },
-  "lint-staged": {
-    "package.json": [
-      "prettier-package-json --write",
-      "git add"
-    ],
-    "!(package).json|*.{yaml,yml}": [
-      "prettier --write",
-      "git add"
-    ],
-    "*.{mjs,js}": [
-      "eslint --fix",
-      "git add"
-    ],
-    "*.ts": [
-      "eslint --config ./.eslintrc-typescript.yml --fix",
-      "git add"
     ]
   }
 }
