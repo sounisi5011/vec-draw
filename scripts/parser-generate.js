@@ -8,6 +8,8 @@ const tspegjs = require('ts-pegjs');
 
 const customHeaderRegExp = /\/\*:header((?:(?!\*\/)[\s\S])+)\*\//g;
 const returnTypeRegExp = /\/\/:([^\r\n]+)(?:\r\n?|\n)((?![0-9])[a-zA-Z0-9_]+)/g;
+const builtInFunctionList = ['text', 'location', 'expected', 'error'];
+const parseFuncVariables = /( *)let (s0(?:, s[1-9][0-9]*)*);(?:[\r\n]|$)/g;
 
 const [fsReadFile, fsWriteFile] = [fs.readFile, fs.writeFile].map(
   util.promisify,
@@ -20,6 +22,36 @@ function trimNewlines(str) {
 async function createFile(filepath, contents) {
   await makeDir(path.dirname(filepath));
   await fsWriteFile(filepath, contents);
+}
+
+function insertTsIgnoreComments(parserStr) {
+  let updatedParserStr = parserStr;
+
+  /*
+   * 使用されていない関数定義のエラー TS6133 を抑制するコメントを挿入
+   * Note: 最初にマッチした関数定義にのみ適用するため、forEachを使用している。
+   */
+  builtInFunctionList.forEach(builtInFunction => {
+    const pattern = new RegExp(`( *)function *(${builtInFunction})\\(`);
+    updatedParserStr = updatedParserStr.replace(
+      pattern,
+      `$1// @ts-ignore: TS6133: '$2' is declared but its value is never read.\n$&`,
+    );
+  });
+
+  /*
+   * 使用されていない変数定義のエラー TS6133 を抑制するコメントを挿入
+   */
+  updatedParserStr = updatedParserStr.replace(
+    parseFuncVariables,
+    (match, indent, args) =>
+      `${indent}// @ts-ignore: '${args.replace(
+        /, /g,
+        `' or '`,
+      )}' is declared but its value is never read.\n${match}`,
+  );
+
+  return updatedParserStr;
 }
 
 (async () => {
@@ -67,5 +99,7 @@ async function createFile(filepath, contents) {
 
   const parser = pegjs.generate(inputContents, options);
 
-  await createFile(outputFullpath, parser);
+  const tsErrorIgnoredParser = insertTsIgnoreComments(parser);
+
+  await createFile(outputFullpath, tsErrorIgnoredParser);
 })();
