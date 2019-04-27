@@ -27,7 +27,7 @@ export interface StatementNode extends Parent {
     name: string;
     nameSymbol: SymbolNode;
     attributes: { [key: string]: ValueNode };
-    attributeNodes: AttributeNode[];
+    attributeNodes: { [key: string]: AttributeNode };
     children: Exclude<StatementValueNode, AttributeNode | CommentNode>[];
     fullChildren: StatementValueNode[];
 }
