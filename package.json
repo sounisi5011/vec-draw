@@ -95,6 +95,7 @@
     "rimraf": "2.x",
     "sort-package-json": "1.x",
     "ts-node": "8.x",
+    "ts-pegjs": "0.2.x",
     "typescript": "3.x"
   },
   "engines": {
