@@ -1,3 +1,9 @@
+/*:header
+
+import * as AST from './dsl.type.ts';
+
+*/
+
 {
   const indentList = [];
   let indentStart = false;
@@ -51,11 +57,13 @@
   }
 }
 
+//: AST.StatementValueNode[]
 start
   = st:statement_child_line stl:statement_children EOL? {
       return [].concat(st, ...stl).filter(Boolean);
     }
 
+//: AST.StatementNode
 statement "DSL Statement"
   = name:symbol st:statement_attr* comment:(SP+ SingleLineComment / SP*) StartIndent stl:statement_children {
       const fullChildren = [].concat(...st, ...comment, ...stl).filter(Boolean);
@@ -83,23 +91,28 @@ statement "DSL Statement"
       };
     }
 
+//: AST.XMLNode | AST.AttributeNode | AST.ValueNode
 statement_attr
   = SP+ value:(XMLStatement / attr / value) {
       return value;
     }
 
+//: (AST.StatementValueNode | null)[]
 statement_children
   = (EOL st:statement_child_line { return st; })*
 
+//: AST.StatementValueNode | null
 statement_child_line
   = SPL { return null; }
   / statement_value
 
+//: AST.StatementValueNode
 statement_value
   = Indent value:(SingleLineComment / XMLStatement / attr / statement / value) {
       return value;
     }
 
+//: AST.AttributeNode
 attr "DSL Attribute"
   = name:symbol "=" SP* value:value {
       return {
@@ -111,6 +124,7 @@ attr "DSL Attribute"
       };
     }
 
+//: AST.ValueNode
 value "DSL Value"
   = coord
   / size
@@ -118,6 +132,7 @@ value "DSL Value"
   / number
   / symbol
 
+//: AST.CoordNode
 coord "DSL Coordinate-type Value"
   = "(" SP* x:number SP* "," SP* y:number SP* ")" {
       return {
@@ -134,6 +149,7 @@ coord "DSL Coordinate-type Value"
       };
     }
 
+//: AST.SizeNode
 size "DSL Size-type Value"
   = "(" SP* width:number SP* "x" SP* height:number SP* ")" {
       return {
@@ -150,6 +166,7 @@ size "DSL Size-type Value"
       };
     }
 
+//: AST.AngleNode
 angle "DSL Angle-type Value"
   = value:number unit:"deg"i {
       return {
@@ -161,6 +178,7 @@ angle "DSL Angle-type Value"
       };
     }
 
+//: AST.NumberNode
 number "DSL Numeric Value"
   = value:$([0-9]* "." [0-9]+ / [0-9]+) {
       return {
@@ -171,6 +189,7 @@ number "DSL Numeric Value"
       };
     }
 
+//: AST.SymbolNode
 symbol "DSL Symbol-type Value"
   = value:$([_a-z]i [_a-z0-9-]i*) {
       return {
@@ -180,6 +199,7 @@ symbol "DSL Symbol-type Value"
       };
     }
 
+//: AST.CommentNode
 SingleLineComment "DSL Comment"
   = "--" value:$(!EOL .)* {
       return {
@@ -189,6 +209,7 @@ SingleLineComment "DSL Comment"
       };
     }
 
+//: string
 Indent
   = spaces:$(SP*) ! SP &{
       const currentIndent = indentList.join('');
@@ -278,12 +299,14 @@ Indent
       return false;
     }
 
+//: void
 StartIndent
   = &{
       indentStart = true;
       return true;
     }
 
+//: AST.XMLNode
 XMLStatement "DSL XML Value"
   = contentValue:(XMLCdata / XMLComment / XMLElement) end:XMLElemEnd? {
       if (end) {
@@ -308,6 +331,7 @@ XMLStatement "DSL XML Value"
       });
     }
 
+//: AST.ElementNode
 XMLElement "XML Element"
   = XMLElemSelfClose
   / start:XMLElemStart content:(XMLLiteral / XMLCdata / XMLComment / XMLElement)* end:(XMLElemEnd / !XMLElemEnd) {
@@ -337,6 +361,7 @@ XMLElement "XML Element"
       };
     }
 
+//: AST.ElementNode
 XMLElemSelfClose
   = "<" nodeName:$([a-z]i [a-z0-9-]i*) attrList:(XMLAttr / SP / EOL)* "/>" {
       return {
@@ -354,6 +379,7 @@ XMLElemSelfClose
       };
     }
 
+//: { name: string, attr: AST.ElementProperties }
 XMLElemStart
   = "<" nodeName:$([a-z]i [a-z0-9-]i*) attrList:(XMLAttr / SP / EOL)* ">" {
       return {
@@ -368,6 +394,7 @@ XMLElemStart
       };
     }
 
+//: { name: string, position: IFileRange }
 XMLElemEnd
   = "</" nodeName:$([a-z]i [a-z0-9-]i*) ">" {
       return {
@@ -376,6 +403,7 @@ XMLElemEnd
       };
     }
 
+//: { name: string, value: string }
 XMLAttr "XML Attribute"
   = name:$([a-z]i [a-z0-9-]i*) SP* "=" SP* value:XMLAttrValue {
       return {
@@ -384,10 +412,12 @@ XMLAttr "XML Attribute"
       };
     }
 
+//: string
 XMLAttrValue "XML Attribute Value"
   = "'" value:$[^']* "'" { return value; }
   / '"' value:$[^"]* '"' { return value; } //"
 
+//: AST.CommentNode
 XMLComment "XML Comment"
   = "<!--" value:$(!"-->" [^>])* "-->" {
       return {
@@ -397,6 +427,7 @@ XMLComment "XML Comment"
       };
     }
 
+//: AST.TextNode
 XMLCdata "XML CDATA Section"
   = "<![CDATA[" value:$(!"]]>" .)* "]]>" {
       return {
@@ -406,6 +437,7 @@ XMLCdata "XML CDATA Section"
       };
     }
 
+//: AST.TextNode
 XMLLiteral "XML Literal"
   = value:$[^<>]+ {
       return {
@@ -415,13 +447,16 @@ XMLLiteral "XML Literal"
       };
     }
 
+//: void
 SPL "Whitespace Line"
   = SP* (& EOL / ! .) {}
 
+//: string
 EOL "Newline Character"
   = "\r\n"
   / "\r"
   / "\n"
 
+//: void
 SP "Whitespace Character"
   = [ \t] {}
