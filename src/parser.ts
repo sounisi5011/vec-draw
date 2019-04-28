@@ -1,4 +1,4 @@
-import * as parser from './parser/dsl.pegjs';
+import * as parser from './parser/dsl.parser';
 import * as AST from './parser/dsl.type';
 import { IndentationError, XMLError } from './error';
 
