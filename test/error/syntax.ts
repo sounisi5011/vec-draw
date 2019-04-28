@@ -53,6 +53,10 @@ test('position引数を省略したSyntaxErrorクラスのプロパティを検�
 });
 
 test('不正な値のposition引数を指定したSyntaxErrorクラスのプロパティを検証', t => {
+    /*
+     * position引数には有効なPositionインターフェイスのオブジェクトを渡さなければならない。
+     * 正しくない場合、指定されなかったものとして扱う。
+     */
     const syntaxErrorObjPos = new SyntaxError(
         'The EXAMPLE',
         // @ts-ignore: TS2345: TS2345: Argument of type '{}' is not assignable to parameter of type 'Position'.
@@ -69,6 +73,10 @@ test('不正な値のposition引数を指定したSyntaxErrorクラスのプロ�
         );
     }
 
+    /*
+     * position引数にプリミティブ値が渡された場合も同様。
+     * 指定されなかったものとして扱う。
+     */
     const syntaxError42Pos = new SyntaxError(
         'The EXAMPLE',
         // @ts-ignore: TS2345: Argument of type '42' is not assignable to parameter of type 'Position | null | undefined'.
@@ -85,6 +93,10 @@ test('不正な値のposition引数を指定したSyntaxErrorクラスのプロ�
         );
     }
 
+    /*
+     * Positionの各フィールドはPointインターフェイスのオブジェクトでなければならない。
+     * 正しくない場合、指定されなかったものとして扱う。
+     */
     const voidPointPos = { start: {}, end: {} };
     const syntaxErrorVoidPointPos = new SyntaxError(
         'The EXAMPLE',
@@ -105,6 +117,10 @@ test('不正な値のposition引数を指定したSyntaxErrorクラスのプロ�
         );
     }
 
+    /*
+     * Pointの各フィールドは数値でなければならない。
+     * 数値ではない場合、指定されなかったものとして扱う。
+     */
     const nonNumberPointsPos = {
         start: { offset: 10, line: undefined, column: true },
         end: { offset: [], line: {}, column: null },
@@ -128,6 +144,10 @@ test('不正な値のposition引数を指定したSyntaxErrorクラスのプロ�
         );
     }
 
+    /*
+     * Pointのoffsetフィールドは省略可能。
+     * offsetフィールドを省略した場合は、正しいPositionとして受け入れる。
+     */
     const offsetGonePointsPos = {
         start: { line: 1, column: 1 },
         end: { line: 1, column: 6 },
@@ -150,6 +170,10 @@ test('不正な値のposition引数を指定したSyntaxErrorクラスのプロ�
         );
     }
 
+    /*
+     * Pointのoffsetフィールドが存在する場合、値の検査も行う。
+     * もし、offsetフィールドが数値ではない場合は、指定されなかったものとして扱う。
+     */
     const offsetNonNumberPointsPos = {
         start: { offset: '0', line: 1, column: 1 },
         end: { offset: '5', line: 1, column: 6 },
@@ -172,27 +196,90 @@ test('不正な値のposition引数を指定したSyntaxErrorクラスのプロ�
             /^SyntaxError: The EXAMPLE(?:[\r\n]|$)/,
         );
     }
+
+    /*
+     * Pointのoffsetフィールドにundefinedが指定された場合は、offsetフィールドが省略されたものとして判定する。
+     * すなわち、正しいPositionとして受け入れる。
+     */
+    const offsetUndefinedValuePointsPos = {
+        start: { offset: 0, line: 1, column: 1 },
+        end: { offset: undefined, line: 1, column: 6 },
+    };
+    const syntaxErrorOffsetUndefinedValuePointsPos = new SyntaxError(
+        'The EXAMPLE',
+        offsetUndefinedValuePointsPos,
+    );
+
+    t.is(
+        syntaxErrorOffsetUndefinedValuePointsPos.message,
+        'The EXAMPLE [1:1-1:6]',
+    );
+    t.is(
+        syntaxErrorOffsetUndefinedValuePointsPos.position,
+        offsetUndefinedValuePointsPos,
+    );
+    t.regex(
+        String(syntaxErrorOffsetUndefinedValuePointsPos),
+        /^SyntaxError: The EXAMPLE \[1:1-1:6\](?:[\r\n]|$)/,
+    );
+    if (hasStackPropError(syntaxErrorOffsetUndefinedValuePointsPos)) {
+        t.regex(
+            syntaxErrorOffsetUndefinedValuePointsPos.stack,
+            /^SyntaxError: The EXAMPLE \[1:1-1:6\](?:[\r\n]|$)/,
+        );
+    }
+
+    /*
+     * Pointのoffsetフィールドにnullが指定された場合は、不正なPoint型として判定する。
+     * すなわち、position引数は指定されなかったものとして扱う。
+     */
+    const offsetNullValuePointsPos = {
+        start: { offset: 0, line: 1, column: 1 },
+        end: { offset: null, line: 1, column: 6 },
+    };
+    const syntaxErrorOffsetNullValuePointsPos = new SyntaxError(
+        'The EXAMPLE',
+        // @ts-ignore: TS2345: Argument of type '{ start: { offset: number; line: number; column: number; }; end: { offset: null; line: number; column: number; }; }' is not assignable to parameter of type 'Position'.
+        offsetNullValuePointsPos,
+    );
+
+    t.is(syntaxErrorOffsetNullValuePointsPos.message, 'The EXAMPLE');
+    t.is(syntaxErrorOffsetNullValuePointsPos.position, null);
+    t.regex(
+        String(syntaxErrorOffsetNullValuePointsPos),
+        /^SyntaxError: The EXAMPLE(?:[\r\n]|$)/,
+    );
+    if (hasStackPropError(syntaxErrorOffsetNullValuePointsPos)) {
+        t.regex(
+            syntaxErrorOffsetNullValuePointsPos.stack,
+            /^SyntaxError: The EXAMPLE(?:[\r\n]|$)/,
+        );
+    }
 });
 
 test('範囲がおかしいposition引数を指定したSyntaxErrorクラスのプロパティを検証', t => {
+    /*
+     * Positionの範囲の検査は行わない。
+     * たとえInfinityやNaNが混入していても、数値であれば正しいPositionとして扱う。
+     */
     const invalidRangePos = {
         start: { offset: -20, line: 10, column: Infinity },
-        end: { offset: 18, line: -10, column: 12.86 },
+        end: { offset: 18, line: -10, column: NaN },
     };
     const syntaxError = new SyntaxError('The EXAMPLE', invalidRangePos);
 
     t.is(syntaxError.name, 'SyntaxError');
-    t.is(syntaxError.message, 'The EXAMPLE [10:Infinity--10:12.86]');
+    t.is(syntaxError.message, 'The EXAMPLE [10:Infinity--10:NaN]');
     t.is(syntaxError.position, invalidRangePos);
     t.regex(
         String(syntaxError),
-        /^SyntaxError: The EXAMPLE \[10:Infinity--10:12\.86\](?:[\r\n]|$)/,
+        /^SyntaxError: The EXAMPLE \[10:Infinity--10:NaN\](?:[\r\n]|$)/,
     );
     if (hasStackPropError(syntaxError)) {
         t.is(typeof syntaxError.stack, 'string');
         t.regex(
             syntaxError.stack,
-            /^SyntaxError: The EXAMPLE \[10:Infinity--10:12\.86\](?:[\r\n]|$)/,
+            /^SyntaxError: The EXAMPLE \[10:Infinity--10:NaN\](?:[\r\n]|$)/,
         );
     }
 });
