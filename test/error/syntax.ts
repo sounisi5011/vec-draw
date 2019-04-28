@@ -149,6 +149,29 @@ test('不正な値のposition引数を指定したSyntaxErrorクラスのプロ�
             /^SyntaxError: The EXAMPLE \[1:1-1:6\](?:[\r\n]|$)/,
         );
     }
+
+    const offsetNonNumberPointsPos = {
+        start: { offset: '0', line: 1, column: 1 },
+        end: { offset: '5', line: 1, column: 6 },
+    };
+    const syntaxErrorOffsetNonNumberPointsPos = new SyntaxError(
+        'The EXAMPLE',
+        // @ts-ignore: TS2345: Argument of type '{ start: { offset: string; line: number; column: number; }; end: { offset: string; line: number; column: number; }; }' is not assignable to parameter of type 'Position'.
+        offsetNonNumberPointsPos,
+    );
+
+    t.is(syntaxErrorOffsetNonNumberPointsPos.message, 'The EXAMPLE');
+    t.is(syntaxErrorOffsetNonNumberPointsPos.position, null);
+    t.regex(
+        String(syntaxErrorOffsetNonNumberPointsPos),
+        /^SyntaxError: The EXAMPLE(?:[\r\n]|$)/,
+    );
+    if (hasStackPropError(syntaxErrorOffsetNonNumberPointsPos)) {
+        t.regex(
+            syntaxErrorOffsetNonNumberPointsPos.stack,
+            /^SyntaxError: The EXAMPLE(?:[\r\n]|$)/,
+        );
+    }
 });
 
 test('範囲がおかしいposition引数を指定したSyntaxErrorクラスのプロパティを検証', t => {
