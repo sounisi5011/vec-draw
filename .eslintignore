@@ -1,3 +1,4 @@
 /dist/
 /dist.*/
-*.pegjs.js
+*.parser.js
+*.parser.ts

@@ -10,4 +10,5 @@ yarn-debug.log*
 yarn-error.log*
 /dist/
 /dist.*/
-*.pegjs.js
+*.parser.js
+*.parser.ts
