@@ -1,6 +1,7 @@
 /*:header
 
 import * as AST from './dsl.type';
+import { IndentationError, XMLError } from '../error';
 
 */
 
@@ -59,6 +60,72 @@ import * as AST from './dsl.type';
       column: currentLineText.length + 1,
       offset: offsetInt,
     };
+  }
+
+  interface IndentationErrorOption {
+    type: 'not equal' | 'unexpected indent' | 'unexpected unindent';
+    mode: 'same' | 'indent' | 'outdent';
+    expectedIndent: string;
+    matchIndent: string;
+  }
+
+  function createIndentationError(options: IndentationErrorOption, position?: AST.Position) {
+    const {
+      expectedIndent: currentIndent,
+      matchIndent: spaces,
+      mode,
+    } = options;
+
+    if (!position) {
+      position = location();
+    }
+
+    const indentMinLength = Math.min(currentIndent.length, spaces.length);
+    const startsEquals = currentIndent.substr(0, indentMinLength) === spaces.substr(0, indentMinLength);
+    if (!startsEquals) {
+      // TODO: 互換性のためこのエラーメッセージを維持しているが、
+      //       ここで発するべきメッセージは「indent string does not match current indentation string」である
+      return new IndentationError(
+        `indent does not match current indentation level`,
+        position,
+      );
+    }
+
+    if (currentIndent.length < spaces.length && mode === 'same') {
+      return new IndentationError(
+        `unexpected indent`,
+        position,
+      );
+    } else if (currentIndent.length > spaces.length) {
+      return new IndentationError(
+        `unindent does not match any outer indentation level`,
+        position,
+      );
+    }
+
+    return null;
+  }
+
+  function createXMLError(options: { startTagName?: string; endTagName?: string }, position?: AST.Position) {
+    const { startTagName, endTagName } = options;
+
+    if (!position) {
+      position = location();
+    }
+
+    if (startTagName) {
+      return new XMLError(
+        `${startTagName} element is not closed`,
+        position,
+      );
+    } else if (endTagName) {
+      return new XMLError(
+        `${endTagName} element has not started`,
+        position,
+      );
+    }
+
+    return null;
   }
 }
 
@@ -240,35 +307,29 @@ Indent
             return true;
           }
         } else {
-          expected({
-            scope: 'indentation',
+          throw createIndentationError({
             type: 'not equal',
             mode: 'same',
             expectedIndent: currentIndent,
             matchIndent: spaces,
-            message: 'インデント不一致',
           }, locationData);
         }
       } else if (currentIndent.length < spaces.length) {
         // インデントが上がった場合
 
         if (!indentStart) {
-          expected({
-            scope: 'indentation',
+          throw createIndentationError({
             type: 'unexpected indent',
             mode: 'same',
             expectedIndent: currentIndent,
             matchIndent: spaces,
-            message: '予期しない字上げ'
           }, locationData);
         } else if (!spaces.startsWith(currentIndent)) {
-          expected({
-            scope: 'indentation',
+          throw createIndentationError({
             type: 'not equal',
             mode: 'indent',
             expectedIndent: currentIndent,
             matchIndent: spaces,
-            message: 'インデント不一致'
           }, locationData);
         }
 
@@ -282,13 +343,11 @@ Indent
         for (let i = indentList.length - 1; 0 <= i; i--) {
           const dedent = indentList.slice(0, i).join('');
           if (dedent.length < spaces.length) {
-            expected({
-              scope: 'indentation',
+            throw createIndentationError({
               type: 'unexpected unindent',
               mode: 'outdent',
               expectedIndent: currentIndent,
               matchIndent: spaces,
-              message: '予期しない字下げ'
             }, locationData);
           }
           if (dedent.length === spaces.length) {
@@ -297,13 +356,11 @@ Indent
               indentStart = false;
               return false;
             } else {
-              expected({
-                scope: 'indentation',
+              throw createIndentationError({
                 type: 'not equal',
                 mode: 'outdent',
                 expectedIndent: currentIndent,
                 matchIndent: spaces,
-                message: 'インデント不一致'
               }, locationData);
             }
           }
@@ -324,10 +381,8 @@ StartIndent
 XMLStatement "DSL XML Value"
   = contentValue:(XMLCdata / XMLComment / XMLElement) end:XMLElemEnd? {
       if (end) {
-        expected({
-          scope: 'xml',
+        throw createXMLError({
           endTagName: end.name,
-          message: '開始していない閉じタグ',
         }, end.position);
       }
 
@@ -338,10 +393,8 @@ XMLStatement "DSL XML Value"
       };
     }
   / end:XMLElemEnd {
-      expected({
-        scope: 'xml',
+      throw createXMLError({
         endTagName: end.name,
-        message: '開始していない閉じタグ',
       });
     }
 
@@ -350,19 +403,15 @@ XMLElement "XML Element"
   = XMLElemSelfClose
   / start:XMLElemStart content:(XMLLiteral / XMLCdata / XMLComment / XMLElement)* end:(XMLElemEnd / !XMLElemEnd) {
       if (end === undefined) {
-        expected({
-          scope: 'xml',
+        throw createXMLError({
           startTagName: start.name,
-          message: '閉じていない開始タグ',
         });
       } else if (start.name !== end.name) {
         const { start: { offset: startOffset } } = location();
         const { start: { offset: endOffset } } = end.position;
-        expected({
-          scope: 'xml',
+        throw createXMLError({
           startTagName: start.name,
           endTagName: end.name,
-          message: '閉じていない開始タグ',
         }, position(startOffset, endOffset));
       }
 
