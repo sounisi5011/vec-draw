@@ -67,6 +67,9 @@
       "git add"
     ]
   },
+  "dependencies": {
+    "@types/unist": "2.x"
+  },
   "devDependencies": {
     "@types/node": "11.x",
     "@typescript-eslint/eslint-plugin": "1.x",
