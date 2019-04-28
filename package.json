@@ -19,11 +19,8 @@
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "npm-run-all clean:build --parallel build:parser build:typescript",
+    "build": "run-s clean:build build:parser build:typescript",
     "build:parser": "node ./scripts/parser-generate.js ./src/parser/dsl.parser.pegjs ./src/parser/dsl.parser.ts",
-    "build:pegjs": "run-s build:pegjs:generate build:pegjs:copy",
-    "build:pegjs:copy": "cpx './src/**/*.{js,d.ts}' ./dist/",
-    "build:pegjs:generate": "pegjs --plugin ts-pegjs -o ./src/parser/dsl.parser.ts ./src/parser/dsl.parser.pegjs",
     "build:typescript": "run-p build:typescript:*",
     "build:typescript:commonjs": "tsc",
     "build:typescript:esm": "run-s build:typescript:esm:tsc build:typescript:esm:rename build:typescript:esm:clean",
