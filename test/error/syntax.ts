@@ -48,7 +48,105 @@ test('position引数を省略したSyntaxErrorクラスのプロパティを検�
     t.is(syntaxError.position, null);
     t.regex(String(syntaxError), /^SyntaxError: The EXAMPLE(?:[\r\n]|$)/);
     if (hasStackPropError(syntaxError)) {
-        t.is(typeof syntaxError.stack, 'string');
         t.regex(syntaxError.stack, /^SyntaxError: The EXAMPLE(?:[\r\n]|$)/);
+    }
+});
+
+test('不正な値のposition引数を指定したSyntaxErrorクラスのプロパティを検証', t => {
+    const syntaxErrorObjPos = new SyntaxError(
+        'The EXAMPLE',
+        // @ts-ignore: TS2345: TS2345: Argument of type '{}' is not assignable to parameter of type 'Position'.
+        {},
+    );
+
+    t.is(syntaxErrorObjPos.message, 'The EXAMPLE');
+    t.is(syntaxErrorObjPos.position, null);
+    t.regex(String(syntaxErrorObjPos), /^SyntaxError: The EXAMPLE(?:[\r\n]|$)/);
+    if (hasStackPropError(syntaxErrorObjPos)) {
+        t.regex(
+            syntaxErrorObjPos.stack,
+            /^SyntaxError: The EXAMPLE(?:[\r\n]|$)/,
+        );
+    }
+
+    const syntaxError42Pos = new SyntaxError(
+        'The EXAMPLE',
+        // @ts-ignore: TS2345: Argument of type '42' is not assignable to parameter of type 'Position | null | undefined'.
+        42,
+    );
+
+    t.is(syntaxError42Pos.message, 'The EXAMPLE');
+    t.is(syntaxError42Pos.position, null);
+    t.regex(String(syntaxError42Pos), /^SyntaxError: The EXAMPLE(?:[\r\n]|$)/);
+    if (hasStackPropError(syntaxError42Pos)) {
+        t.regex(
+            syntaxError42Pos.stack,
+            /^SyntaxError: The EXAMPLE(?:[\r\n]|$)/,
+        );
+    }
+
+    const voidPointPos = { start: {}, end: {} };
+    const syntaxErrorVoidPointPos = new SyntaxError(
+        'The EXAMPLE',
+        // @ts-ignore: TS2345: Argument of type '{ start: {}; end: {}; }' is not assignable to parameter of type 'Position'.
+        voidPointPos,
+    );
+
+    t.is(syntaxErrorVoidPointPos.message, 'The EXAMPLE');
+    t.is(syntaxErrorVoidPointPos.position, null);
+    t.regex(
+        String(syntaxErrorVoidPointPos),
+        /^SyntaxError: The EXAMPLE(?:[\r\n]|$)/,
+    );
+    if (hasStackPropError(syntaxErrorVoidPointPos)) {
+        t.regex(
+            syntaxErrorVoidPointPos.stack,
+            /^SyntaxError: The EXAMPLE(?:[\r\n]|$)/,
+        );
+    }
+
+    const nonNumberPointsPos = {
+        start: { offset: 10, line: undefined, column: true },
+        end: { offset: [], line: {}, column: null },
+    };
+    const syntaxErrorNonNumberPointsPos = new SyntaxError(
+        'The EXAMPLE',
+        // @ts-ignore: TS2345: Argument of type '{ start: { offset: number; line: undefined; column: boolean; }; end: { offset: never[]; line: {}; column: null; }; }' is not assignable to parameter of type 'Position'.
+        nonNumberPointsPos,
+    );
+
+    t.is(syntaxErrorNonNumberPointsPos.message, 'The EXAMPLE');
+    t.is(syntaxErrorNonNumberPointsPos.position, null);
+    t.regex(
+        String(syntaxErrorNonNumberPointsPos),
+        /^SyntaxError: The EXAMPLE(?:[\r\n]|$)/,
+    );
+    if (hasStackPropError(syntaxErrorNonNumberPointsPos)) {
+        t.regex(
+            syntaxErrorNonNumberPointsPos.stack,
+            /^SyntaxError: The EXAMPLE(?:[\r\n]|$)/,
+        );
+    }
+
+    const offsetGonePointsPos = {
+        start: { line: 1, column: 1 },
+        end: { line: 1, column: 6 },
+    };
+    const syntaxErrorOffsetGonePointsPos = new SyntaxError(
+        'The EXAMPLE',
+        offsetGonePointsPos,
+    );
+
+    t.is(syntaxErrorOffsetGonePointsPos.message, 'The EXAMPLE [1:1-1:6]');
+    t.is(syntaxErrorOffsetGonePointsPos.position, offsetGonePointsPos);
+    t.regex(
+        String(syntaxErrorOffsetGonePointsPos),
+        /^SyntaxError: The EXAMPLE \[1:1-1:6\](?:[\r\n]|$)/,
+    );
+    if (hasStackPropError(syntaxErrorOffsetGonePointsPos)) {
+        t.regex(
+            syntaxErrorOffsetGonePointsPos.stack,
+            /^SyntaxError: The EXAMPLE \[1:1-1:6\](?:[\r\n]|$)/,
+        );
     }
 });
