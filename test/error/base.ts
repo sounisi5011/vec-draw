@@ -15,10 +15,10 @@ test('BaseErrorクラスのプロパティを検証', t => {
     t.is(baseError.name, 'BaseError');
     t.is(baseError.message, 'The EXAMPLE');
     t.is(baseError.previous, null);
-    t.true(/^BaseError: The EXAMPLE(?:[\r\n]|$)/.test(String(baseError)));
+    t.regex(String(baseError), /^BaseError: The EXAMPLE(?:[\r\n]|$)/);
     if (hasStackPropError(baseError)) {
         t.is(typeof baseError.stack, 'string');
-        t.true(/^BaseError: The EXAMPLE(?:[\r\n]|$)/.test(baseError.stack));
+        t.regex(baseError.stack, /^BaseError: The EXAMPLE(?:[\r\n]|$)/);
     }
 });
 

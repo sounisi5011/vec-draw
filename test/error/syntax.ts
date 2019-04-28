@@ -27,17 +27,15 @@ test('SyntaxErrorクラスのプロパティを検証', t => {
     t.is(syntaxError.name, 'SyntaxError');
     t.is(syntaxError.message, 'The EXAMPLE [2:1-3:5]');
     t.is(syntaxError.position, pos);
-    t.true(
-        /^SyntaxError: The EXAMPLE \[2:1-3:5\](?:[\r\n]|$)/.test(
-            String(syntaxError),
-        ),
+    t.regex(
+        String(syntaxError),
+        /^SyntaxError: The EXAMPLE \[2:1-3:5\](?:[\r\n]|$)/,
     );
     if (hasStackPropError(syntaxError)) {
         t.is(typeof syntaxError.stack, 'string');
-        t.true(
-            /^SyntaxError: The EXAMPLE \[2:1-3:5\](?:[\r\n]|$)/.test(
-                syntaxError.stack,
-            ),
+        t.regex(
+            syntaxError.stack,
+            /^SyntaxError: The EXAMPLE \[2:1-3:5\](?:[\r\n]|$)/,
         );
     }
 });
