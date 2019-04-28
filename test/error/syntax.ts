@@ -150,3 +150,26 @@ test('不正な値のposition引数を指定したSyntaxErrorクラスのプロ�
         );
     }
 });
+
+test('範囲がおかしいposition引数を指定したSyntaxErrorクラスのプロパティを検証', t => {
+    const invalidRangePos = {
+        start: { offset: -20, line: 10, column: Infinity },
+        end: { offset: 18, line: -10, column: 12.86 },
+    };
+    const syntaxError = new SyntaxError('The EXAMPLE', invalidRangePos);
+
+    t.is(syntaxError.name, 'SyntaxError');
+    t.is(syntaxError.message, 'The EXAMPLE [10:Infinity--10:12.86]');
+    t.is(syntaxError.position, invalidRangePos);
+    t.regex(
+        String(syntaxError),
+        /^SyntaxError: The EXAMPLE \[10:Infinity--10:12\.86\](?:[\r\n]|$)/,
+    );
+    if (hasStackPropError(syntaxError)) {
+        t.is(typeof syntaxError.stack, 'string');
+        t.regex(
+            syntaxError.stack,
+            /^SyntaxError: The EXAMPLE \[10:Infinity--10:12\.86\](?:[\r\n]|$)/,
+        );
+    }
+});
