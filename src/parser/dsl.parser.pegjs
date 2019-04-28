@@ -13,6 +13,10 @@ import { IndentationError, XMLError } from '../error';
     return value !== null && value !== undefined;
   }
 
+  function arrayFlatten<T, U>(...args: (T | U[])[]) {
+    return ([] as (T | U)[]).concat(...args);
+  }
+
   /**
    * @param {number} [startOffset=location().start.offset]
    * @param {number} [endOffset=location().end.offset]
@@ -143,10 +147,10 @@ statement "DSL Statement"
       return ((
           name: AST.SymbolNode,
           st: (AST.XMLNode | AST.AttributeNode | AST.ValueNode)[],
-          comment: (AST.CommentNode | undefined)[],
+          comment: (AST.CommentNode | undefined[])[],
           stl: (AST.StatementValueNode | null)[]
         ) => {
-        const fullChildren: AST.StatementValueNode[] = [...st, ...comment, ...stl].filter(filterNullable);
+        const fullChildren = arrayFlatten(...st, ...comment, ...stl).filter(filterNullable);
         const [attributes, attributeNodes, children] = fullChildren
           .reduce(([attributes, attributeNodes, children], childNode) => {
             if (childNode.type === 'attr') {
