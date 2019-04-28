@@ -1,6 +1,14 @@
 import test from 'ava';
 import BaseError from '../../src/error/base';
 
+interface HaveStackError extends Error {
+    stack: string;
+}
+
+function hasStackPropError(error: Error): error is HaveStackError {
+    return 'stack' in error;
+}
+
 test('BaseErrorクラスのプロパティを検証', t => {
     const baseError = new BaseError('The EXAMPLE');
 
@@ -8,7 +16,8 @@ test('BaseErrorクラスのプロパティを検証', t => {
     t.is(baseError.message, 'The EXAMPLE');
     t.is(baseError.previous, null);
     t.true(/^BaseError: The EXAMPLE(?:[\r\n]|$)/.test(String(baseError)));
-    if ('stack' in baseError) {
+    if (hasStackPropError(baseError)) {
+        t.is(typeof baseError.stack, 'string');
         t.true(/^BaseError: The EXAMPLE(?:[\r\n]|$)/.test(baseError.stack));
     }
 });
@@ -19,7 +28,7 @@ test('BaseErrorクラスのメソッドを検証', t => {
     t.is(typeof baseError.setPrevious, 'function');
 
     const previousError1 = new Error();
-    const previousError2 = new BaseError();
+    const previousError2 = new BaseError('');
 
     const extendedError1 = baseError.setPrevious(previousError1);
 
@@ -58,23 +67,23 @@ test('BaseErrorクラスのメソッドを検証', t => {
 });
 
 class CustomError1Lv1 extends BaseError {
-    public xxxx(): void {
+    public xxxx(): this {
         return this;
     }
 }
 class CustomError1Lv2 extends CustomError1Lv1 {
-    public yyyy(): void {
+    public yyyy(): string {
         return this.message;
     }
 }
 class CustomError2Lv1 extends BaseError {
-    public zzzz(): void {
+    public zzzz(): unknown {
         return this.previous;
     }
 }
 
 test('BaseErrorクラスの継承を検証', t => {
-    const baseError = new BaseError();
+    const baseError = new BaseError('');
 
     t.true(baseError instanceof Error);
     t.true(baseError instanceof BaseError);
@@ -82,7 +91,7 @@ test('BaseErrorクラスの継承を検証', t => {
     t.false(baseError instanceof CustomError1Lv2);
     t.false(baseError instanceof CustomError2Lv1);
 
-    const cs1Error = new CustomError1Lv1();
+    const cs1Error = new CustomError1Lv1('');
 
     t.true(cs1Error instanceof Error);
     t.true(cs1Error instanceof BaseError);
@@ -94,10 +103,12 @@ test('BaseErrorクラスの継承を検証', t => {
 
     t.is(typeof cs1Error.setPrevious, 'function');
     t.is(typeof cs1Error.xxxx, 'function');
+    // @ts-ignore: TS2339: Property 'yyyy' does not exist on type 'CustomError1Lv1'.
     t.not(typeof cs1Error.yyyy, 'function');
+    // @ts-ignore: TS2339: Property 'zzzz' does not exist on type 'CustomError1Lv1'.
     t.not(typeof cs1Error.zzzz, 'function');
 
-    const cs2Error = new CustomError1Lv2();
+    const cs2Error = new CustomError1Lv2('');
 
     t.true(cs2Error instanceof Error);
     t.true(cs2Error instanceof BaseError);
@@ -110,9 +121,10 @@ test('BaseErrorクラスの継承を検証', t => {
     t.is(typeof cs2Error.setPrevious, 'function');
     t.is(typeof cs2Error.xxxx, 'function');
     t.is(typeof cs2Error.yyyy, 'function');
+    // @ts-ignore: TS2339: Property 'zzzz' does not exist on type 'CustomError1Lv2'.
     t.not(typeof cs2Error.zzzz, 'function');
 
-    const cs3Error = new CustomError2Lv1();
+    const cs3Error = new CustomError2Lv1('');
 
     t.true(cs3Error instanceof Error);
     t.true(cs3Error instanceof BaseError);
@@ -123,7 +135,9 @@ test('BaseErrorクラスの継承を検証', t => {
     t.is(cs3Error.name, 'CustomError2Lv1');
 
     t.is(typeof cs3Error.setPrevious, 'function');
+    // @ts-ignore: TS2339: Property 'xxxx' does not exist on type 'CustomError2Lv1'.
     t.not(typeof cs3Error.xxxx, 'function');
+    // @ts-ignore: TS2339: Property 'yyyy' does not exist on type 'CustomError2Lv1'.
     t.not(typeof cs3Error.yyyy, 'function');
     t.is(typeof cs3Error.zzzz, 'function');
 });
