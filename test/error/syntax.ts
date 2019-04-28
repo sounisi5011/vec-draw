@@ -39,3 +39,16 @@ test('SyntaxErrorクラスのプロパティを検証', t => {
         );
     }
 });
+
+test('position引数を省略したSyntaxErrorクラスのプロパティを検証', t => {
+    const syntaxError = new SyntaxError('The EXAMPLE');
+
+    t.is(syntaxError.name, 'SyntaxError');
+    t.is(syntaxError.message, 'The EXAMPLE');
+    t.is(syntaxError.position, null);
+    t.regex(String(syntaxError), /^SyntaxError: The EXAMPLE(?:[\r\n]|$)/);
+    if (hasStackPropError(syntaxError)) {
+        t.is(typeof syntaxError.stack, 'string');
+        t.regex(syntaxError.stack, /^SyntaxError: The EXAMPLE(?:[\r\n]|$)/);
+    }
+});
