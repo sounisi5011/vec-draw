@@ -1,3 +1,4 @@
 /dist/
 /dist.*/
 *.pegjs.js
+*.pegjs.ts
