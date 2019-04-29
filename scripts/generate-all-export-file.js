@@ -1,3 +1,4 @@
+const spawn = require('await-spawn');
 const fs = require('fs');
 const path = require('path');
 const util = require('util');
@@ -149,6 +150,8 @@ async function generateIndexFile(dirpath) {
     await fsWriteFile(generateFilepath, code);
     // eslint-disable-next-line no-console
     console.log(`generated ${path.relative(process.cwd(), generateFilepath)}`);
+
+    await spawn('git', ['add', generateFilepath]);
   }
 }
 
