@@ -12,7 +12,7 @@ const [fsReaddir, fsReadFile, fsWriteFile] = [
  * 対象にするディレクトリと、そのディレクトリ内からみた生成ファイルのパス
  */
 const targetDirTable = {
-  './src/error/': '../z.ts',
+  './src/error/': 'index.ts',
 };
 
 const defaultExportRegExp = /(?:^|[\r\n])export\s+default\s+class\s+([^\s{}]+)(?:\s+[^\s{}]+)*\s*\{/;

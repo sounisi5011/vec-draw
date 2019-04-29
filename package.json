@@ -55,6 +55,7 @@
     ],
     "*.ts": [
       "eslint --config ./.eslintrc-typescript.yml --fix",
+      "node ./scripts/generate-all-export-file.js",
       "git add"
     ],
     "*.{mjs,js}": [
