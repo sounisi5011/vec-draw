@@ -422,11 +422,7 @@ XMLAttrValue "XML Attribute Value"
 //: AST.CommentNode
 XMLComment "XML Comment"
   = "<!--" value:$(!"-->" [^>])* "-->" {
-      return {
-        type: 'comment',
-        value: value,
-        position: position()
-      };
+      return AST.createCommentNode(position(), value as string);
     }
 
 //: AST.TextNode
