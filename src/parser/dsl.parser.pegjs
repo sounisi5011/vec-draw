@@ -428,21 +428,13 @@ XMLComment "XML Comment"
 //: AST.TextNode
 XMLCdata "XML CDATA Section"
   = "<![CDATA[" value:$(!"]]>" .)* "]]>" {
-      return {
-        type: 'text',
-        value: value,
-        position: position()
-      };
+      return AST.createTextNode(position(), value as string);
     }
 
 //: AST.TextNode
 XMLLiteral "XML Literal"
   = value:$[^<>]+ {
-      return {
-        type: 'text',
-        value: value,
-        position: position()
-      };
+      return AST.createTextNode(position(), value as string);
     }
 
 //: void
