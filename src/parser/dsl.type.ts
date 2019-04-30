@@ -50,10 +50,7 @@ export function createStatementNode(
     const fullChildren = allChildren.filter(filterNullable);
     const attributes: StatementAttributes = {};
     const attributeNodes: StatementAttributeNodes = {};
-    const children: Exclude<
-        StatementValueNode,
-        AttributeNode | CommentNode
-    >[] = [];
+    const children: StatementNode['children'] = [];
 
     fullChildren.forEach(childNode => {
         if (childNode.type === 'attr') {
