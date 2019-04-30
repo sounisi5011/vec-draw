@@ -295,7 +295,7 @@ export function createElementNode(
         | undefined)[],
     children: ElementNode['children'],
 ): ElementNode {
-    const props: AST.ElementProperties = {};
+    const props: ElementProperties = {};
 
     attrList.forEach(attr => {
         if (typeof attr === 'object') {
