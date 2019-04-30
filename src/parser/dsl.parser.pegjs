@@ -355,23 +355,31 @@ XMLElement "XML Element"
       );
     }
 
+/*:header
+
+namespace Parser {
+  export type AttrList = (Parser.XMLAttrData | string | undefined)[]
+}
+
+*/
+
 //: AST.ElementNode
 XMLElemSelfClose
   = "<" nodeName:$([a-z]i [a-z0-9-]i*) attrList:(XMLAttr / SP / EOL)* "/>" {
       return AST.createElementNode(
         position(),
         nodeName as string,
-        attrList as ({ name: string, value: string } | string | undefined)[],
+        attrList as Parser.AttrList,
         [],
       );
     }
 
-//: { name: string, attrList: ({ name: string, value: string } | string | undefined)[] }
+//: { name: string, attrList: Parser.AttrList }
 XMLElemStart
   = "<" nodeName:$([a-z]i [a-z0-9-]i*) attrList:(XMLAttr / SP / EOL)* ">" {
       return {
-        name: nodeName,
-        attrList: attrList as ({ name: string, value: string } | string | undefined)[],
+        name: nodeName as string,
+        attrList: attrList as Parser.AttrList,
       };
     }
 
@@ -379,17 +387,28 @@ XMLElemStart
 XMLElemEnd
   = "</" nodeName:$([a-z]i [a-z0-9-]i*) ">" {
       return {
-        name: nodeName,
+        name: nodeName as string,
         position: position()
       };
     }
 
-//: { name: string, value: string }
+/*:header
+
+namespace Parser {
+  export interface XMLAttrData {
+    name: string;
+    value: AST.ElementPropertyValue;
+  }
+}
+
+*/
+
+//: Parser.XMLAttrData
 XMLAttr "XML Attribute"
   = name:$([a-z]i [a-z0-9-]i*) SP* "=" SP* value:XMLAttrValue {
       return {
-        name: name,
-        value: value,
+        name: name as string,
+        value: value as string,
       };
     }
 
