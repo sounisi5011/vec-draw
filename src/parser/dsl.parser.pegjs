@@ -220,11 +220,7 @@ symbol "DSL Symbol-type Value"
 //: AST.CommentNode
 SingleLineComment "DSL Comment"
   = "--" value:$(!EOL .)* {
-      return {
-        type: 'comment',
-        value: value,
-        position: position()
-      };
+      return AST.createCommentNode(position(), value as string);
     }
 
 //: string
