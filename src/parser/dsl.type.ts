@@ -268,6 +268,17 @@ export interface XMLNode extends Node {
     content: TextNode | CommentNode | ElementNode;
 }
 
+export function createXMLNode(
+    position: Position,
+    contentValue: TextNode | CommentNode | ElementNode,
+): XMLNode {
+    return {
+        type: 'xml',
+        content: contentValue,
+        position,
+    };
+}
+
 export interface ElementNode extends Parent {
     type: 'element';
     tagName: string;
