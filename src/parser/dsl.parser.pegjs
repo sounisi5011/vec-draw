@@ -190,13 +190,13 @@ value "DSL Value"
 //: AST.CoordNode
 coord "DSL Coordinate-type Value"
   = "(" SP* x:number SP* "," SP* y:number SP* ")" {
-      return AST.createCoordNode(position(), x, y);
+      return AST.createCoordNode(position(), x as AST.NumberNode, y as AST.NumberNode);
     }
 
 //: AST.SizeNode
 size "DSL Size-type Value"
   = "(" SP* width:number SP* "x" SP* height:number SP* ")" {
-      return AST.createSizeNode(position(), width, height);
+      return AST.createSizeNode(position(), width as AST.NumberNode, height as AST.NumberNode);
     }
 
 //: AST.AngleNode
