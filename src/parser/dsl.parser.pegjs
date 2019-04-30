@@ -9,14 +9,6 @@ import { IndentationError, XMLError } from '../error';
   const indentList: string[] = [];
   let indentStart = false;
 
-  function filterNullable<T>(value: T): value is Exclude<T, null | undefined> {
-    return value !== null && value !== undefined;
-  }
-
-  function arrayFlatten<T, U>(...args: (T | U[])[]) {
-    return ([] as (T | U)[]).concat(...args);
-  }
-
   /**
    * @param {number} [startOffset=location().start.offset]
    * @param {number} [endOffset=location().end.offset]
@@ -136,44 +128,19 @@ import { IndentationError, XMLError } from '../error';
 //: AST.StatementValueNode[]
 start
   = st:statement_child_line stl:statement_children EOL? {
-      return ((st: AST.StatementValueNode | null, stl: (AST.StatementValueNode | null)[]) => {
-        return [st, ...stl].filter(filterNullable);
-      })(st, stl);
+      return AST.createRootNode(st as (AST.StatementValueNode | null), ...(stl as (AST.StatementValueNode | null)[]));
     }
 
 //: AST.StatementNode
 statement "DSL Statement"
-  = name:symbol st:statement_attr* comment:(SP+ SingleLineComment / SP*) StartIndent stl:statement_children {
-      return ((
-          name: AST.SymbolNode,
-          st: (AST.XMLNode | AST.AttributeNode | AST.ValueNode)[],
-          comment: (AST.CommentNode | undefined[])[],
-          stl: (AST.StatementValueNode | null)[]
-        ) => {
-        const fullChildren = arrayFlatten(...st, ...comment, ...stl).filter(filterNullable);
-        const [attributes, attributeNodes, children] = fullChildren
-          .reduce(([attributes, attributeNodes, children], childNode) => {
-            if (childNode.type === 'attr') {
-              const attrNode = childNode;
-              attributes[attrNode.name] = attrNode.value;
-              attributeNodes[attrNode.name] = attrNode;
-            } else if (childNode.type !== 'comment') {
-              children.push(childNode);
-            }
-            return [attributes, attributeNodes, children];
-          }, [{} as AST.StatementAttributes, {} as AST.StatementAttributeNodes, [] as AST.StatementValueNode[]]);
-
-        return {
-          type: 'statement',
-          name: name.value,
-          nameSymbol: name,
-          attributes: attributes,
-          attributeNodes: attributeNodes,
-          children: children,
-          fullChildren: fullChildren,
-          position: position(),
-        };
-      })(name, st, comment, stl);
+  = name:symbol st:statement_attr* comment:statement_attr_comment StartIndent stl:statement_children {
+      return AST.createStatementNode(
+        position(),
+        name as AST.SymbolNode,
+        ...st as (AST.XMLNode | AST.AttributeNode | AST.ValueNode)[],
+        comment as (AST.CommentNode | undefined),
+        ...stl as (AST.StatementValueNode | null)[]
+      );
     }
 
 //: AST.XMLNode | AST.AttributeNode | AST.ValueNode
@@ -181,6 +148,11 @@ statement_attr
   = SP+ value:(XMLStatement / attr / value) {
       return value;
     }
+
+//: AST.CommentNode | void
+statement_attr_comment
+  = SP+ comment:SingleLineComment { return comment; }
+  / SP* {}
 
 //: (AST.StatementValueNode | null)[]
 statement_children
@@ -200,13 +172,11 @@ statement_value
 //: AST.AttributeNode
 attr "DSL Attribute"
   = name:symbol "=" SP* value:value {
-      return {
-        type: 'attr',
-        name: name.value,
-        nameSymbol: name,
-        value: value,
-        position: position()
-      };
+      return AST.createAttributeNode(
+        position(),
+        name as AST.SymbolNode,
+        value as AST.ValueNode,
+      );
     }
 
 //: AST.ValueNode
@@ -220,78 +190,37 @@ value "DSL Value"
 //: AST.CoordNode
 coord "DSL Coordinate-type Value"
   = "(" SP* x:number SP* "," SP* y:number SP* ")" {
-      return {
-        type: 'coord',
-        value: {
-          x: x.value,
-          y: y.value
-        },
-        valueNode: {
-          x: x,
-          y: y
-        },
-        position: position()
-      };
+      return AST.createCoordNode(position(), x as AST.NumberNode, y as AST.NumberNode);
     }
 
 //: AST.SizeNode
 size "DSL Size-type Value"
   = "(" SP* width:number SP* "x" SP* height:number SP* ")" {
-      return {
-        type: 'size',
-        value: {
-          width: width.value,
-          height: height.value
-        },
-        valueNode: {
-          width: width,
-          height: height
-        },
-        position: position()
-      };
+      return AST.createSizeNode(position(), width as AST.NumberNode, height as AST.NumberNode);
     }
 
 //: AST.AngleNode
 angle "DSL Angle-type Value"
   = value:number unit:"deg"i {
-      return {
-        type: 'angle',
-        value: value.value,
-        valueNode: value,
-        unit: unit.toLowerCase(),
-        position: position()
-      };
+      return AST.createAngleNode(position(), value as AST.NumberNode, unit as string);
     }
 
 //: AST.NumberNode
 number "DSL Numeric Value"
   = value:$([0-9]* "." [0-9]+ / [0-9]+) {
-      return {
-        type: 'number',
-        value: value.replace(/^\./, '0.'),
-        rawValue: value,
-        position: position()
-      };
+      return AST.createNumberNode(position(), value as string);
     }
 
 //: AST.SymbolNode
 symbol "DSL Symbol-type Value"
   = value:$([_a-z]i [_a-z0-9-]i*) {
-      return {
-        type: 'symbol',
-        value: value,
-        position: position()
-      };
+      return AST.createSymbolNode(position(), value as string);
     }
 
 //: AST.CommentNode
 SingleLineComment "DSL Comment"
   = "--" value:$(!EOL .)* {
-      return {
-        type: 'comment',
-        value: value,
-        position: position()
-      };
+      return AST.createCommentNode(position(), value as string);
     }
 
 //: string
@@ -390,11 +319,10 @@ XMLStatement "DSL XML Value"
         }, end.position);
       }
 
-      return {
-        type: 'xml',
-        content: contentValue,
-        position: position()
-      };
+      return AST.createXMLNode(
+        position(),
+        contentValue as (AST.TextNode | AST.CommentNode | AST.ElementNode)
+      );
     }
   / end:XMLElemEnd {
       throw createXMLError({
@@ -419,69 +347,68 @@ XMLElement "XML Element"
         }, position(startOffset, endOffset));
       }
 
-      return {
-        type: "element",
-        tagName: start.name,
-        properties: start.attr,
-        children: content,
-        position: position()
-      };
+      return AST.createElementNode(
+        position(),
+        start.name,
+        start.attrList,
+        content,
+      );
     }
+
+/*:header
+
+namespace Parser {
+  export type AttrList = (Parser.XMLAttrData | string | undefined)[]
+}
+
+*/
 
 //: AST.ElementNode
 XMLElemSelfClose
   = "<" nodeName:$([a-z]i [a-z0-9-]i*) attrList:(XMLAttr / SP / EOL)* "/>" {
-      return ((
-        nodeName: string,
-        attrList: ({ name: string, value: string } | string | undefined)[],
-      ) => ({
-        type: "element",
-        tagName: nodeName,
-        properties: attrList.reduce((properties, attr) => {
-          if (typeof attr === "object") {
-            const {name: attrName, value: attrValue} = attr;
-            properties[attrName] = attrValue;
-          }
-          return properties;
-        }, {} as AST.ElementProperties),
-        children: [],
-        position: position()
-      }))(nodeName, attrList);
+      return AST.createElementNode(
+        position(),
+        nodeName as string,
+        attrList as Parser.AttrList,
+        [],
+      );
     }
 
-//: { name: string, attr: AST.ElementProperties }
+//: { name: string, attrList: Parser.AttrList }
 XMLElemStart
   = "<" nodeName:$([a-z]i [a-z0-9-]i*) attrList:(XMLAttr / SP / EOL)* ">" {
-      return ((
-        nodeName: string,
-        attrList: ({ name: string, value: string } | string | undefined)[],
-      ) => ({
-        name: nodeName,
-        attr: attrList.reduce((properties, attr) => {
-          if (typeof attr === "object") {
-            const {name: attrName, value: attrValue} = attr;
-            properties[attrName] = attrValue;
-          }
-          return properties;
-        }, {} as AST.ElementProperties)
-      }))(nodeName, attrList);
+      return {
+        name: nodeName as string,
+        attrList: attrList as Parser.AttrList,
+      };
     }
 
 //: { name: string, position: IFileRange }
 XMLElemEnd
   = "</" nodeName:$([a-z]i [a-z0-9-]i*) ">" {
       return {
-        name: nodeName,
+        name: nodeName as string,
         position: position()
       };
     }
 
-//: { name: string, value: string }
+/*:header
+
+namespace Parser {
+  export interface XMLAttrData {
+    name: string;
+    value: AST.ElementPropertyValue;
+  }
+}
+
+*/
+
+//: Parser.XMLAttrData
 XMLAttr "XML Attribute"
   = name:$([a-z]i [a-z0-9-]i*) SP* "=" SP* value:XMLAttrValue {
       return {
-        name: name,
-        value: value,
+        name: name as string,
+        value: value as string,
       };
     }
 
@@ -493,31 +420,19 @@ XMLAttrValue "XML Attribute Value"
 //: AST.CommentNode
 XMLComment "XML Comment"
   = "<!--" value:$(!"-->" [^>])* "-->" {
-      return {
-        type: 'comment',
-        value: value,
-        position: position()
-      };
+      return AST.createCommentNode(position(), value as string);
     }
 
 //: AST.TextNode
 XMLCdata "XML CDATA Section"
   = "<![CDATA[" value:$(!"]]>" .)* "]]>" {
-      return {
-        type: 'text',
-        value: value,
-        position: position()
-      };
+      return AST.createTextNode(position(), value as string);
     }
 
 //: AST.TextNode
 XMLLiteral "XML Literal"
   = value:$[^<>]+ {
-      return {
-        type: 'text',
-        value: value,
-        position: position()
-      };
+      return AST.createTextNode(position(), value as string);
     }
 
 //: void
