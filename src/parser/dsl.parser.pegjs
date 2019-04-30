@@ -172,13 +172,11 @@ statement_value
 //: AST.AttributeNode
 attr "DSL Attribute"
   = name:symbol "=" SP* value:value {
-      return {
-        type: 'attr',
-        name: name.value,
-        nameSymbol: name,
-        value: value,
-        position: position()
-      };
+      return AST.createAttributeNode(
+        position(),
+        name as AST.SymbolNode,
+        value as AST.ValueNode,
+      );
     }
 
 //: AST.ValueNode
