@@ -1,3 +1,7 @@
+function filterNullable<T>(value: T): value is Exclude<T, null | undefined> {
+    return value !== null && value !== undefined;
+}
+
 export interface Node {
     type: string;
     position: Position;
@@ -30,6 +34,41 @@ export interface StatementNode extends Parent {
     attributeNodes: StatementAttributeNodes;
     children: Exclude<StatementValueNode, AttributeNode | CommentNode>[];
     fullChildren: StatementValueNode[];
+}
+
+export function createStatementNode(
+    position: Position,
+    name: SymbolNode,
+    ...allChildren: (StatementValueNode | null | undefined)[]
+): StatementNode {
+    const fullChildren = allChildren.filter(filterNullable);
+    const attributes: StatementAttributes = {};
+    const attributeNodes: StatementAttributeNodes = {};
+    const children: Exclude<
+        StatementValueNode,
+        AttributeNode | CommentNode
+    > = [];
+
+    fullChildren.forEach(childNode => {
+        if (childNode.type === 'attr') {
+            const attrNode = childNode;
+            attributes[attrNode.name] = attrNode.value;
+            attributeNodes[attrNode.name] = attrNode;
+        } else if (childNode.type !== 'comment') {
+            children.push(childNode);
+        }
+    });
+
+    return {
+        type: 'statement',
+        name: name.value,
+        nameSymbol: name,
+        attributes,
+        attributeNodes,
+        children,
+        fullChildren,
+        position,
+    };
 }
 
 export interface StatementAttributes {
