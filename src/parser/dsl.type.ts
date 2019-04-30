@@ -47,7 +47,7 @@ export function createStatementNode(
     const children: Exclude<
         StatementValueNode,
         AttributeNode | CommentNode
-    > = [];
+    >[] = [];
 
     fullChildren.forEach(childNode => {
         if (childNode.type === 'attr') {
