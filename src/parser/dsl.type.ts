@@ -99,6 +99,20 @@ export interface AttributeNode extends Literal {
     value: ValueNode;
 }
 
+export function createAttributeNode(
+    position: Position,
+    name: SymbolNode,
+    value: ValueNode,
+): AttributeNode {
+    return {
+        type: 'attr',
+        name: name.value,
+        nameSymbol: name,
+        value,
+        position,
+    };
+}
+
 export type ValueNode =
     | CoordNode
     | SizeNode
