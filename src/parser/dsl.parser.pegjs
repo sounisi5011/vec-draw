@@ -9,10 +9,6 @@ import { IndentationError, XMLError } from '../error';
   const indentList: string[] = [];
   let indentStart = false;
 
-  function filterNullable<T>(value: T): value is Exclude<T, null | undefined> {
-    return value !== null && value !== undefined;
-  }
-
   /**
    * @param {number} [startOffset=location().start.offset]
    * @param {number} [endOffset=location().end.offset]
@@ -132,9 +128,7 @@ import { IndentationError, XMLError } from '../error';
 //: AST.StatementValueNode[]
 start
   = st:statement_child_line stl:statement_children EOL? {
-      return ((st: AST.StatementValueNode | null, stl: (AST.StatementValueNode | null)[]) => {
-        return [st, ...stl].filter(filterNullable);
-      })(st, stl);
+      return AST.createRootNode(st as (AST.StatementValueNode | null), ...(stl as (AST.StatementValueNode | null)[]));
     }
 
 //: AST.StatementNode
