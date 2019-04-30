@@ -139,7 +139,7 @@ start
 
 //: AST.StatementNode
 statement "DSL Statement"
-  = name:symbol st:statement_attr* comment:(SP+ SingleLineComment / SP*) StartIndent stl:statement_children {
+  = name:symbol st:statement_attr* comment:statement_attr_comment StartIndent stl:statement_children {
       return AST.createStatementNode(position(), name, ...st, ...comment, ...stl);
     }
 
@@ -148,6 +148,11 @@ statement_attr
   = SP+ value:(XMLStatement / attr / value) {
       return value;
     }
+
+//: AST.CommentNode | void
+statement_attr_comment
+  = SP+ comment:SingleLineComment { return comment; }
+  / SP* {}
 
 //: (AST.StatementValueNode | null)[]
 statement_children
