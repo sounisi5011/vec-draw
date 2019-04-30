@@ -255,6 +255,14 @@ export interface TextNode extends Literal {
     value: string;
 }
 
+export function createTextNode(position: Position, value: string): TextNode {
+    return {
+        type: 'text',
+        value,
+        position,
+    };
+}
+
 export interface XMLNode extends Node {
     type: 'xml';
     content: TextNode | CommentNode | ElementNode;
