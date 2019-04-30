@@ -202,34 +202,19 @@ size "DSL Size-type Value"
 //: AST.AngleNode
 angle "DSL Angle-type Value"
   = value:number unit:"deg"i {
-      return {
-        type: 'angle',
-        value: value.value,
-        valueNode: value,
-        unit: unit.toLowerCase(),
-        position: position()
-      };
+      return AST.createAngleNode(position(), value as AST.NumberNode, unit as string);
     }
 
 //: AST.NumberNode
 number "DSL Numeric Value"
   = value:$([0-9]* "." [0-9]+ / [0-9]+) {
-      return {
-        type: 'number',
-        value: value.replace(/^\./, '0.'),
-        rawValue: value,
-        position: position()
-      };
+      return AST.createNumberNode(position(), value as string);
     }
 
 //: AST.SymbolNode
 symbol "DSL Symbol-type Value"
   = value:$([_a-z]i [_a-z0-9-]i*) {
-      return {
-        type: 'symbol',
-        value: value,
-        position: position()
-      };
+      return AST.createSymbolNode(position(), value as string);
     }
 
 //: AST.CommentNode
