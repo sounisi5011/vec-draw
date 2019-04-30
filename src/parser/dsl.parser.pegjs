@@ -134,7 +134,13 @@ start
 //: AST.StatementNode
 statement "DSL Statement"
   = name:symbol st:statement_attr* comment:statement_attr_comment StartIndent stl:statement_children {
-      return AST.createStatementNode(position(), name, ...st, ...comment, ...stl);
+      return AST.createStatementNode(
+        position(),
+        name as AST.SymbolNode,
+        ...st as (AST.XMLNode | AST.AttributeNode | AST.ValueNode)[],
+        comment as (AST.CommentNode | undefined),
+        ...stl as (AST.StatementValueNode | null)[]
+      );
     }
 
 //: AST.XMLNode | AST.AttributeNode | AST.ValueNode
