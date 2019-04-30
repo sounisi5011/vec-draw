@@ -347,52 +347,32 @@ XMLElement "XML Element"
         }, position(startOffset, endOffset));
       }
 
-      return {
-        type: "element",
-        tagName: start.name,
-        properties: start.attr,
-        children: content,
-        position: position()
-      };
+      return AST.createElementNode(
+        position(),
+        start.name,
+        start.attrList,
+        content,
+      );
     }
 
 //: AST.ElementNode
 XMLElemSelfClose
   = "<" nodeName:$([a-z]i [a-z0-9-]i*) attrList:(XMLAttr / SP / EOL)* "/>" {
-      return ((
-        nodeName: string,
-        attrList: ({ name: string, value: string } | string | undefined)[],
-      ) => ({
-        type: "element",
-        tagName: nodeName,
-        properties: attrList.reduce((properties, attr) => {
-          if (typeof attr === "object") {
-            const {name: attrName, value: attrValue} = attr;
-            properties[attrName] = attrValue;
-          }
-          return properties;
-        }, {} as AST.ElementProperties),
-        children: [],
-        position: position()
-      }))(nodeName, attrList);
+      return AST.createElementNode(
+        position(),
+        nodeName as string,
+        attrList as ({ name: string, value: string } | string | undefined)[],
+        [],
+      );
     }
 
-//: { name: string, attr: AST.ElementProperties }
+//: { name: string, attrList: ({ name: string, value: string } | string | undefined)[] }
 XMLElemStart
   = "<" nodeName:$([a-z]i [a-z0-9-]i*) attrList:(XMLAttr / SP / EOL)* ">" {
-      return ((
-        nodeName: string,
-        attrList: ({ name: string, value: string } | string | undefined)[],
-      ) => ({
+      return {
         name: nodeName,
-        attr: attrList.reduce((properties, attr) => {
-          if (typeof attr === "object") {
-            const {name: attrName, value: attrValue} = attr;
-            properties[attrName] = attrValue;
-          }
-          return properties;
-        }, {} as AST.ElementProperties)
-      }))(nodeName, attrList);
+        attrList: attrList as ({ name: string, value: string } | string | undefined)[],
+      };
     }
 
 //: { name: string, position: IFileRange }
