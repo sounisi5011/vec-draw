@@ -239,6 +239,17 @@ export interface CommentNode extends Literal {
     value: string;
 }
 
+export function createCommentNode(
+    position: Position,
+    value: string,
+): CommentNode {
+    return {
+        type: 'comment',
+        value,
+        position,
+    };
+}
+
 export interface TextNode extends Literal {
     type: 'text';
     value: string;
