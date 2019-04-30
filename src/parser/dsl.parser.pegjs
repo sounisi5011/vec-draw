@@ -319,11 +319,10 @@ XMLStatement "DSL XML Value"
         }, end.position);
       }
 
-      return {
-        type: 'xml',
-        content: contentValue,
-        position: position()
-      };
+      return AST.createXMLNode(
+        position(),
+        contentValue as (AST.TextNode | AST.CommentNode | AST.ElementNode)
+      );
     }
   / end:XMLElemEnd {
       throw createXMLError({
