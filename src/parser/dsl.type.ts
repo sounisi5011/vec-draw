@@ -186,15 +186,52 @@ export interface AngleNode extends Literal {
     unit: string;
 }
 
+export function createAngleNode(
+    position: Position,
+    value: NumberNode,
+    unit: string,
+): AngleNode {
+    return {
+        type: 'angle',
+        value: value.value,
+        valueNode: value,
+        unit: unit.toLowerCase(),
+        position,
+    };
+}
+
 export interface NumberNode extends Literal {
     type: 'number';
     value: string;
     rawValue: string;
 }
 
+export function createNumberNode(
+    position: Position,
+    value: string,
+): NumberNode {
+    return {
+        type: 'number',
+        value: value.replace(/^\./, '0.'),
+        rawValue: value,
+        position,
+    };
+}
+
 export interface SymbolNode extends Literal {
     type: 'symbol';
     value: string;
+}
+
+export function createSymbolNode(
+    position: Position,
+    value: string,
+): SymbolNode {
+    return {
+        type: 'symbol',
+        value,
+        position,
+    };
 }
 
 export interface CommentNode extends Literal {
