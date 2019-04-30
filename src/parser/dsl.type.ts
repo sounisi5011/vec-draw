@@ -289,13 +289,25 @@ export interface ElementNode extends Parent {
 export function createElementNode(
     position: Position,
     nodeName: string,
-    attr: ElementProperties,
+    attrList: (
+        | { name: string; value: ElementPropertyValue }
+        | string
+        | undefined)[],
     children: ElementNode['children'],
 ): ElementNode {
+    const props: AST.ElementProperties = {};
+
+    attrList.forEach(attr => {
+        if (typeof attr === 'object') {
+            const { name: attrName, value: attrValue } = attr;
+            props[attrName] = attrValue;
+        }
+    });
+
     return {
         type: 'element',
         tagName: nodeName,
-        properties: attr,
+        properties: props,
         children,
         position,
     };
