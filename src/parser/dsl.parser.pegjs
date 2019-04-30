@@ -13,10 +13,6 @@ import { IndentationError, XMLError } from '../error';
     return value !== null && value !== undefined;
   }
 
-  function arrayFlatten<T, U>(...args: (T | U[])[]) {
-    return ([] as (T | U)[]).concat(...args);
-  }
-
   /**
    * @param {number} [startOffset=location().start.offset]
    * @param {number} [endOffset=location().end.offset]
@@ -144,36 +140,7 @@ start
 //: AST.StatementNode
 statement "DSL Statement"
   = name:symbol st:statement_attr* comment:(SP+ SingleLineComment / SP*) StartIndent stl:statement_children {
-      return ((
-          name: AST.SymbolNode,
-          st: (AST.XMLNode | AST.AttributeNode | AST.ValueNode)[],
-          comment: (AST.CommentNode | undefined[])[],
-          stl: (AST.StatementValueNode | null)[]
-        ) => {
-        const fullChildren = arrayFlatten(...st, ...comment, ...stl).filter(filterNullable);
-        const [attributes, attributeNodes, children] = fullChildren
-          .reduce(([attributes, attributeNodes, children], childNode) => {
-            if (childNode.type === 'attr') {
-              const attrNode = childNode;
-              attributes[attrNode.name] = attrNode.value;
-              attributeNodes[attrNode.name] = attrNode;
-            } else if (childNode.type !== 'comment') {
-              children.push(childNode);
-            }
-            return [attributes, attributeNodes, children];
-          }, [{} as AST.StatementAttributes, {} as AST.StatementAttributeNodes, [] as AST.StatementValueNode[]]);
-
-        return {
-          type: 'statement',
-          name: name.value,
-          nameSymbol: name,
-          attributes: attributes,
-          attributeNodes: attributeNodes,
-          children: children,
-          fullChildren: fullChildren,
-          position: position(),
-        };
-      })(name, st, comment, stl);
+      return AST.createStatementNode(position(), name, ...st, ...comment, ...stl);
     }
 
 //: AST.XMLNode | AST.AttributeNode | AST.ValueNode
