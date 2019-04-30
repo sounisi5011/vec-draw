@@ -26,6 +26,12 @@ export interface Position {
     end: Point;
 }
 
+export function createRootNode(
+    ...children: (StatementValueNode | null)[]
+): StatementValueNode[] {
+    return children.filter(filterNullable);
+}
+
 export interface StatementNode extends Parent {
     type: 'statement';
     name: string;
