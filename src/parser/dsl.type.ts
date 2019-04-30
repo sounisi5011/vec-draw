@@ -286,6 +286,21 @@ export interface ElementNode extends Parent {
     children: (TextNode | CommentNode | ElementNode)[];
 }
 
+export function createElementNode(
+    position: Position,
+    nodeName: string,
+    attr: ElementProperties,
+    children: ElementNode['children'],
+): ElementNode {
+    return {
+        type: 'element',
+        tagName: nodeName,
+        properties: attr,
+        children,
+        position,
+    };
+}
+
 export interface ElementProperties {
     [key: string]: ElementPropertyValue;
 }
