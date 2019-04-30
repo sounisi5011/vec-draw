@@ -129,6 +129,25 @@ export interface CoordNode extends Literal {
     };
 }
 
+export function createCoordNode(
+    position: Position,
+    x: NumberNode,
+    y: NumberNode,
+): CoordNode {
+    return {
+        type: 'coord',
+        value: {
+            x: x.value,
+            y: y.value,
+        },
+        valueNode: {
+            x,
+            y,
+        },
+        position,
+    };
+}
+
 export interface SizeNode extends Literal {
     type: 'size';
     value: {
@@ -138,6 +157,25 @@ export interface SizeNode extends Literal {
     valueNode: {
         width: NumberNode;
         height: NumberNode;
+    };
+}
+
+export function createSizeNode(
+    position: Position,
+    width: NumberNode,
+    height: NumberNode,
+): SizeNode {
+    return {
+        type: 'size',
+        value: {
+            width: width.value,
+            height: height.value,
+        },
+        valueNode: {
+            width,
+            height,
+        },
+        position,
     };
 }
 
