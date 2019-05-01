@@ -1,4 +1,4 @@
-import * as Hast from '../../vnode/hast';
+import * as Hast from './hast';
 
 export default interface VNode extends Hast.Element {
     children: VNode[];
