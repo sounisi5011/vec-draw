@@ -1,7 +1,7 @@
 import * as Unist from 'unist';
 
 import { AST } from '../../parser';
-import VNode from './vnode';
+import VNode from '../../vnode/vnode';
 
 function findFirstChildNode(
     node: Unist.Parent,
@@ -91,8 +91,9 @@ export function rect(statementNode: AST.StatementNode): VNode {
     }
 
     return {
-        nodeName: 'rect',
-        attributes: attrs,
+        type: 'element',
+        tagName: 'rect',
+        properties: attrs,
         children: [],
     };
 }
@@ -305,8 +306,9 @@ export function path(statementNode: AST.StatementNode): VNode {
         .join('\n');
 
     return {
-        nodeName: 'path',
-        attributes: attrs,
+        type: 'element',
+        tagName: 'path',
+        properties: attrs,
         children: [],
     };
 }
