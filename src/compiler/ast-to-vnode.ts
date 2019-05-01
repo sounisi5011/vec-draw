@@ -25,7 +25,7 @@ function astChildren2vnodeList(children: AST.StatementValueNode[]): VNode[] {
         .filter(isVNode);
 }
 
-export default function ast2vnode(ast: AST.StatementValueNode[]): VNode {
+export default function ast2vnode(ast: AST.RootNode): VNode {
     const rootElem: VNode = {
         nodeName: 'svg',
         attributes: {
@@ -35,7 +35,7 @@ export default function ast2vnode(ast: AST.StatementValueNode[]): VNode {
         children: [],
     };
 
-    rootElem.children = astChildren2vnodeList(ast);
+    rootElem.children = astChildren2vnodeList(ast.children);
 
     return rootElem;
 }
