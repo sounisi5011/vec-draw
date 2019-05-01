@@ -4,6 +4,8 @@ import * as api from '../src/index';
 test('公開APIの存在検証', t => {
     const apiNameList = [
         'compile',
+        'parser',
+        'unifiedParser',
         'BaseError',
         'IndentationError',
         'SyntaxError',
