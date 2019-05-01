@@ -68,7 +68,8 @@
     ]
   },
   "dependencies": {
-    "@types/unist": "2.x"
+    "@types/unist": "2.x",
+    "unified": "7.x"
   },
   "devDependencies": {
     "@types/node": "11.x",
@@ -95,8 +96,7 @@
     "sort-package-json": "1.x",
     "ts-node": "8.x",
     "ts-pegjs": "0.2.x",
-    "typescript": "3.x",
-    "unified": "7.x"
+    "typescript": "3.x"
   },
   "engines": {
     "node": ">=8.10.0"
