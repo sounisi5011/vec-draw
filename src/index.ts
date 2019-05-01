@@ -1,3 +1,4 @@
+import unified from 'unified';
 import { parse } from './parser';
 import * as AST from './parser/dsl.type';
 import ast2vnode from './compiler/ast-to-vnode';
@@ -21,5 +22,13 @@ export function compile(text: string): string {
 export function parser(text: string): AST.StatementValueNode[] {
     return parse(text);
 }
+
+const unifiedParser: unified.Plugin = function unifiedParser(): void {
+    this.Parser = () => {
+        return { type: '' };
+    };
+};
+
+export { unifiedParser };
 
 export * from './error';
