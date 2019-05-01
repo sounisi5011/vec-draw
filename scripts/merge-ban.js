@@ -15,10 +15,11 @@ function allowMerge() {
   /*
    * マージを許可
    */
-  process.exitCode = 0;
 }
 
 function pullRequestOnlyMerge(currentBranch, mergeBranch) {
+  process.exitCode = 1;
+
   /*
    * マージを拒否（Pull Requestのみ許可）
    */
@@ -37,6 +38,8 @@ function pullRequestOnlyMerge(currentBranch, mergeBranch) {
 }
 
 function denyMerge(currentBranch, mergeBranch, allowBranchList = []) {
+  process.exitCode = 1;
+
   /*
    * マージを拒否
    */
@@ -67,8 +70,6 @@ function denyMerge(currentBranch, mergeBranch, allowBranchList = []) {
 }
 
 if (COMMIT_SOURCE === 'merge') {
-  process.exitCode = 1;
-
   (() => {
     try {
       /*
