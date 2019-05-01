@@ -1,4 +1,4 @@
-import VNode from './ast-to-vnode/vnode';
+import VNode from './vnode';
 
 /**
  * @param {VNode} vnode
