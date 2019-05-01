@@ -358,14 +358,14 @@ XMLElement "XML Element"
 /*:header
 
 namespace Parser {
-  export type AttrList = (Parser.XMLAttrData | string | undefined)[]
+  export type AttrList = Parser.XMLAttrData[]
 }
 
 */
 
 //: AST.ElementNode
 XMLElemSelfClose
-  = "<" nodeName:$([a-z]i [a-z0-9-]i*) attrList:(XMLAttr / SP / EOL)* "/>" {
+  = "<" nodeName:$([a-z]i [a-z0-9-]i*) attrList:XMLAttrSequence "/>" {
       return AST.createElementNode(
         position(),
         nodeName as string,
@@ -376,7 +376,7 @@ XMLElemSelfClose
 
 //: { name: string, attrList: Parser.AttrList }
 XMLElemStart
-  = "<" nodeName:$([a-z]i [a-z0-9-]i*) attrList:(XMLAttr / SP / EOL)* ">" {
+  = "<" nodeName:$([a-z]i [a-z0-9-]i*) attrList:XMLAttrSequence ">" {
       return {
         name: nodeName as string,
         attrList: attrList as Parser.AttrList,
@@ -402,6 +402,16 @@ namespace Parser {
 }
 
 */
+
+//: Parser.AttrList
+XMLAttrSequence
+  = attrs:(
+      (SP / EOL)+
+      attr:XMLAttr
+      { return attr as Parser.XMLAttrData; }
+    )*
+    (SP / EOL)*
+    { return attrs as Parser.XMLAttrData[]; }
 
 //: Parser.XMLAttrData
 XMLAttr "XML Attribute"
