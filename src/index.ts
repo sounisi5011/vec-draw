@@ -1,4 +1,5 @@
 import { parse } from './parser';
+import * as AST from './parser/dsl.type';
 import ast2vnode from './compiler/ast-to-vnode';
 import vnode2str from './compiler/vnode-to-str';
 
