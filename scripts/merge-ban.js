@@ -11,6 +11,10 @@ const [COMMIT_MSG_FILE, COMMIT_SOURCE] = (
 const SCRIPT_PATH = `./${path.relative(process.cwd(), process.argv[1])}`;
 const OUTPUT_PREFIX = `${SCRIPT_PATH} > `;
 
+const KNOWN_MSG_REGEXP_LIST = [
+  /^Revert "[^\n]+"\n+This reverts commit [a-fA-F0-9]+.(\n|$)/,
+];
+
 function allowMerge() {
   /*
    * マージを許可
@@ -85,13 +89,15 @@ if (COMMIT_SOURCE === 'merge') {
         commitMsg,
       );
       if (!match) {
-        // eslint-disable-next-line no-console
-        console.error(
-          `${OUTPUT_PREFIX}[!] コミットメッセージの解析に失敗しました:\n${indent(
-            commitMsg,
-            4,
-          )}`,
-        );
+        if (!KNOWN_MSG_REGEXP_LIST.some(regexp => regexp.test(commitMsg))) {
+          // eslint-disable-next-line no-console
+          console.error(
+            `${OUTPUT_PREFIX}[!] コミットメッセージの解析に失敗しました:\n${indent(
+              commitMsg,
+              4,
+            )}`,
+          );
+        }
         return;
       }
       const [, mergeBranch, currentBranch] = match;
