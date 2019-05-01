@@ -15,6 +15,7 @@ settings:
   import/resolver:
     node:
       extensions:
+        - .js
         - .d.ts
       moduleDirectory:
         - node_modules
