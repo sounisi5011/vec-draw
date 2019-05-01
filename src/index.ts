@@ -1,7 +1,7 @@
 import unified from 'unified';
 import { parse } from './parser';
 import ast2vnode from './compiler/ast-to-vnode';
-import vnode2str from './compiler/vnode-to-str';
+import vnodeStringify from './vnode/stringify';
 import { VFileCompatible2text } from './utils/unified';
 
 /**
@@ -16,7 +16,7 @@ export function compile(text: string): string {
 
     const vnode = ast2vnode(ast);
 
-    return vnode2str(vnode);
+    return vnodeStringify(vnode);
 }
 
 export { parse as parser };
