@@ -1,6 +1,6 @@
 import * as statementNode2vnodeMap from './ast-to-vnode/statements';
 import { AST } from '../parser';
-import VNode, { isVNode } from './ast-to-vnode/vnode';
+import VNode, { isVNode } from '../vnode/vnode';
 
 function isStatementNode(
     node: AST.StatementValueNode,
@@ -27,8 +27,9 @@ function astChildren2vnodeList(children: AST.StatementValueNode[]): VNode[] {
 
 export default function ast2vnode(ast: AST.RootNode): VNode {
     const rootElem: VNode = {
-        nodeName: 'svg',
-        attributes: {
+        type: 'element',
+        tagName: 'svg',
+        properties: {
             version: '1.1',
             xmlns: 'http://www.w3.org/2000/svg',
         },
