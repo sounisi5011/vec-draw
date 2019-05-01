@@ -1,4 +1,5 @@
 import VNode from './vnode';
+import propertiesStringify from './properties-stringify';
 
 /**
  * @param {VNode} vnode
@@ -9,36 +10,20 @@ export default function vnodeStringify({
     properties,
     children,
 }: VNode): string {
-    const propStr = properties
-        ? Object.entries(properties).reduce((acc, [attr, value]) => {
-              let str = acc;
-
-              str += /[\r\n]/.test(str)
-                  ? `\n${' '.repeat(`<${tagName} `.length)}`
-                  : ' ';
-
-              if (typeof value === 'string' && /[\r\n]/.test(value)) {
-                  const indent = ' '.repeat(`<${tagName} ${attr}="`.length);
-                  const indentedValue = value.replace(
-                      /\r\n?|\n/g,
-                      m => `${m}${indent}`,
-                  );
-                  str += `${attr}="${indentedValue}"`;
-              } else {
-                  str += `${attr}="${value}"`;
-              }
-
-              return str;
-          }, '')
-        : '';
+    const elemPrefix = `<${tagName}`;
+    const propStr = propertiesStringify(properties);
+    const propIndent = ' '.repeat(elemPrefix.length);
+    const indentedPropStr = /[\r\n]/.test(propStr)
+        ? propStr.replace(/\r\n?|\n/g, `$&${propIndent}`)
+        : propStr;
 
     if (children.length > 0) {
         const childrenStr = children
             .map(vnodeStringify)
             .join('')
             .replace(/^(?=[^\r\n]+$)/gm, '  ');
-        return `<${tagName}${propStr}>\n${childrenStr}</${tagName}>\n`;
+        return `${elemPrefix}${indentedPropStr}>\n${childrenStr}</${tagName}>\n`;
     }
 
-    return `<${tagName}${propStr}/>\n`;
+    return `${elemPrefix}${indentedPropStr}/>\n`;
 }
