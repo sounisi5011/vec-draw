@@ -11,7 +11,7 @@ export default function vnodeStringify({
     children,
 }: VNode): string {
     const elemPrefix = `<${tagName}`;
-    const propStr = propertiesStringify(properties);
+    const propStr = properties ? propertiesStringify(properties) : '';
     const propIndent = ' '.repeat(elemPrefix.length);
     const indentedPropStr = /[\r\n]/.test(propStr)
         ? propStr.replace(/\r\n?|\n/g, `$&${propIndent}`)
