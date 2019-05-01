@@ -18,8 +18,8 @@ settings:
         - .js
         - .d.ts
       moduleDirectory:
-        - node_modules
         - node_modules/@types
+        - node_modules
 rules:
   node/no-unsupported-features/es-syntax:
     - error
