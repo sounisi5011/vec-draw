@@ -1,28 +1,6 @@
-export interface Node {
-    type: string;
-    position: Position;
-}
+import * as Unist from 'unist';
 
-export interface Parent extends Node {
-    children: Node[];
-}
-
-export interface Literal extends Node {
-    value: unknown;
-}
-
-export interface Point {
-    offset: number;
-    line: number;
-    column: number;
-}
-
-export interface Position {
-    start: Point;
-    end: Point;
-}
-
-export interface StatementNode extends Parent {
+export interface StatementNode extends Unist.Parent {
     type: 'statement';
     name: string;
     nameSymbol: SymbolNode;
@@ -47,7 +25,7 @@ export type StatementValueNode =
     | StatementNode
     | ValueNode;
 
-export interface AttributeNode extends Literal {
+export interface AttributeNode extends Unist.Literal {
     type: 'attr';
     name: string;
     nameSymbol: SymbolNode;
@@ -61,7 +39,7 @@ export type ValueNode =
     | NumberNode
     | SymbolNode;
 
-export interface CoordNode extends Literal {
+export interface CoordNode extends Unist.Literal {
     type: 'coord';
     value: {
         x: string;
@@ -73,7 +51,7 @@ export interface CoordNode extends Literal {
     };
 }
 
-export interface SizeNode extends Literal {
+export interface SizeNode extends Unist.Literal {
     type: 'size';
     value: {
         width: string;
@@ -85,40 +63,40 @@ export interface SizeNode extends Literal {
     };
 }
 
-export interface AngleNode extends Literal {
+export interface AngleNode extends Unist.Literal {
     type: 'angle';
     value: string;
     valueNode: NumberNode;
     unit: string;
 }
 
-export interface NumberNode extends Literal {
+export interface NumberNode extends Unist.Literal {
     type: 'number';
     value: string;
     rawValue: string;
 }
 
-export interface SymbolNode extends Literal {
+export interface SymbolNode extends Unist.Literal {
     type: 'symbol';
     value: string;
 }
 
-export interface CommentNode extends Literal {
+export interface CommentNode extends Unist.Literal {
     type: 'comment';
     value: string;
 }
 
-export interface TextNode extends Literal {
+export interface TextNode extends Unist.Literal {
     type: 'text';
     value: string;
 }
 
-export interface XMLNode extends Node {
+export interface XMLNode extends Unist.Node {
     type: 'xml';
     content: TextNode | CommentNode | ElementNode;
 }
 
-export interface ElementNode extends Parent {
+export interface ElementNode extends Unist.Parent {
     type: 'element';
     tagName: string;
     properties: ElementProperties;
