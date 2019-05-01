@@ -17,4 +17,8 @@ export function compile(text: string): string {
     return vnode2str(vnode);
 }
 
+export function parser(text: string): AST.StatementValueNode[] {
+    return parse(text);
+}
+
 export * from './error';
