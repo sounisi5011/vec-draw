@@ -5,6 +5,6 @@ export const { SyntaxError } = parser;
 
 export { AST };
 
-export function parse(sourceText: string): AST.StatementValueNode[] {
+export function parse(sourceText: string): AST.RootNode {
     return parser.parse(sourceText);
 }

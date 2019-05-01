@@ -127,7 +127,7 @@ import { IndentationError, XMLError } from '../error';
   }
 }
 
-//: AST.StatementValueNode[]
+//: AST.RootNode
 start
   = st:statement_child_line stl:statement_children EOL? {
       return AST.createRootNode(st as (AST.StatementValueNode | null), ...(stl as (AST.StatementValueNode | null)[]));
