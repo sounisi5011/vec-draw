@@ -69,6 +69,7 @@
   },
   "dependencies": {
     "@types/unist": "2.x",
+    "@types/vfile": "3.x",
     "unified": "7.x"
   },
   "devDependencies": {
