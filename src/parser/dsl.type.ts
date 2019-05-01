@@ -4,10 +4,56 @@ function filterNullable<T>(value: T): value is Exclude<T, null | undefined> {
     return value !== null && value !== undefined;
 }
 
+function allChildren2attrAndChildren(
+    allChildren: (StatementValueNode | null | undefined)[],
+): [
+    StatementAttributes,
+    StatementAttributeNodes,
+    StatementNode['children'],
+    StatementValueNode[]
+] {
+    const fullChildren = allChildren.filter(filterNullable);
+    const attributes: StatementAttributes = {};
+    const attributeNodes: StatementAttributeNodes = {};
+    const children: StatementNode['children'] = [];
+
+    fullChildren.forEach(childNode => {
+        if (childNode.type === 'attr') {
+            const attrNode = childNode;
+            attributes[attrNode.name] = attrNode.value;
+            attributeNodes[attrNode.name] = attrNode;
+        } else if (childNode.type !== 'comment') {
+            children.push(childNode);
+        }
+    });
+
+    return [attributes, attributeNodes, children, fullChildren];
+}
+
+export interface RootNode extends Unist.Parent {
+    type: 'root';
+    attributes: StatementAttributes;
+    attributeNodes: StatementAttributeNodes;
+    children: StatementNode['children'];
+    fullChildren: StatementValueNode[];
+}
+
 export function createRootNode(
-    ...children: (StatementValueNode | null)[]
-): StatementValueNode[] {
-    return children.filter(filterNullable);
+    ...allChildren: (StatementValueNode | null)[]
+): RootNode {
+    const [
+        attributes,
+        attributeNodes,
+        children,
+        fullChildren,
+    ] = allChildren2attrAndChildren(allChildren);
+    return {
+        type: 'root',
+        attributes,
+        attributeNodes,
+        children,
+        fullChildren,
+    };
 }
 
 export interface StatementNode extends Unist.Parent {
@@ -25,21 +71,12 @@ export function createStatementNode(
     name: SymbolNode,
     ...allChildren: (StatementValueNode | null | undefined)[]
 ): StatementNode {
-    const fullChildren = allChildren.filter(filterNullable);
-    const attributes: StatementAttributes = {};
-    const attributeNodes: StatementAttributeNodes = {};
-    const children: StatementNode['children'] = [];
-
-    fullChildren.forEach(childNode => {
-        if (childNode.type === 'attr') {
-            const attrNode = childNode;
-            attributes[attrNode.name] = attrNode.value;
-            attributeNodes[attrNode.name] = attrNode;
-        } else if (childNode.type !== 'comment') {
-            children.push(childNode);
-        }
-    });
-
+    const [
+        attributes,
+        attributeNodes,
+        children,
+        fullChildren,
+    ] = allChildren2attrAndChildren(allChildren);
     return {
         type: 'statement',
         name: name.value,
