@@ -3,6 +3,7 @@ import { parse } from './parser';
 import * as AST from './parser/dsl.type';
 import ast2vnode from './compiler/ast-to-vnode';
 import vnode2str from './compiler/vnode-to-str';
+import { VFileCompatible2text } from './utils/unified';
 
 /**
  * @param {string} text 変換するvec-draw DSLの文字列
@@ -25,7 +26,7 @@ export function parser(text: string): AST.RootNode {
 
 const unifiedParser: unified.Plugin = function unifiedParser(): void {
     this.Parser = file => {
-        return parse(file.toString('utf8'));
+        return parse(VFileCompatible2text(file));
     };
 };
 
