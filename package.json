@@ -95,7 +95,8 @@
     "sort-package-json": "1.x",
     "ts-node": "8.x",
     "ts-pegjs": "0.2.x",
-    "typescript": "3.x"
+    "typescript": "3.x",
+    "unified": "7.x"
   },
   "engines": {
     "node": ">=8.10.0"
