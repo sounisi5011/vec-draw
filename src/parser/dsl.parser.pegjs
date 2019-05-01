@@ -1,5 +1,7 @@
 /*:header
 
+import * as Unist from 'unist';
+
 import * as AST from './dsl.type';
 import { IndentationError, XMLError } from '../error';
 
@@ -65,7 +67,7 @@ import { IndentationError, XMLError } from '../error';
     matchIndent: string;
   }
 
-  function createIndentationError(options: IndentationErrorOption, position?: AST.Position) {
+  function createIndentationError(options: IndentationErrorOption, position?: Unist.Position) {
     const {
       expectedIndent: currentIndent,
       matchIndent: spaces,
@@ -102,7 +104,7 @@ import { IndentationError, XMLError } from '../error';
     return null;
   }
 
-  function createXMLError(options: { startTagName?: string; endTagName?: string }, position?: AST.Position) {
+  function createXMLError(options: { startTagName?: string; endTagName?: string }, position?: Unist.Position) {
     const { startTagName, endTagName } = options;
 
     if (!position) {

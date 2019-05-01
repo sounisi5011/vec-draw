@@ -21,7 +21,7 @@ export interface StatementNode extends Unist.Parent {
 }
 
 export function createStatementNode(
-    position: Position,
+    position: Unist.Position,
     name: SymbolNode,
     ...allChildren: (StatementValueNode | null | undefined)[]
 ): StatementNode {
@@ -75,7 +75,7 @@ export interface AttributeNode extends Unist.Literal {
 }
 
 export function createAttributeNode(
-    position: Position,
+    position: Unist.Position,
     name: SymbolNode,
     value: ValueNode,
 ): AttributeNode {
@@ -108,7 +108,7 @@ export interface CoordNode extends Unist.Literal {
 }
 
 export function createCoordNode(
-    position: Position,
+    position: Unist.Position,
     x: NumberNode,
     y: NumberNode,
 ): CoordNode {
@@ -139,7 +139,7 @@ export interface SizeNode extends Unist.Literal {
 }
 
 export function createSizeNode(
-    position: Position,
+    position: Unist.Position,
     width: NumberNode,
     height: NumberNode,
 ): SizeNode {
@@ -165,7 +165,7 @@ export interface AngleNode extends Unist.Literal {
 }
 
 export function createAngleNode(
-    position: Position,
+    position: Unist.Position,
     value: NumberNode,
     unit: string,
 ): AngleNode {
@@ -185,7 +185,7 @@ export interface NumberNode extends Unist.Literal {
 }
 
 export function createNumberNode(
-    position: Position,
+    position: Unist.Position,
     value: string,
 ): NumberNode {
     return {
@@ -202,7 +202,7 @@ export interface SymbolNode extends Unist.Literal {
 }
 
 export function createSymbolNode(
-    position: Position,
+    position: Unist.Position,
     value: string,
 ): SymbolNode {
     return {
@@ -218,7 +218,7 @@ export interface CommentNode extends Unist.Literal {
 }
 
 export function createCommentNode(
-    position: Position,
+    position: Unist.Position,
     value: string,
 ): CommentNode {
     return {
@@ -233,7 +233,10 @@ export interface TextNode extends Unist.Literal {
     value: string;
 }
 
-export function createTextNode(position: Position, value: string): TextNode {
+export function createTextNode(
+    position: Unist.Position,
+    value: string,
+): TextNode {
     return {
         type: 'text',
         value,
@@ -247,7 +250,7 @@ export interface XMLNode extends Unist.Node {
 }
 
 export function createXMLNode(
-    position: Position,
+    position: Unist.Position,
     contentValue: TextNode | CommentNode | ElementNode,
 ): XMLNode {
     return {
@@ -265,7 +268,7 @@ export interface ElementNode extends Unist.Parent {
 }
 
 export function createElementNode(
-    position: Position,
+    position: Unist.Position,
     nodeName: string,
     attrList: (
         | { name: string; value: ElementPropertyValue }
