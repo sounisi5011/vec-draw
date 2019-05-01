@@ -24,8 +24,8 @@ export function parser(text: string): AST.RootNode {
 }
 
 const unifiedParser: unified.Plugin = function unifiedParser(): void {
-    this.Parser = () => {
-        return { type: '' };
+    this.Parser = file => {
+        return parse(file.toString('utf8'));
     };
 };
 
