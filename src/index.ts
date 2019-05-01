@@ -1,6 +1,5 @@
 import unified from 'unified';
 import { parse } from './parser';
-import * as AST from './parser/dsl.type';
 import ast2vnode from './compiler/ast-to-vnode';
 import vnode2str from './compiler/vnode-to-str';
 import { VFileCompatible2text } from './utils/unified';
@@ -20,9 +19,7 @@ export function compile(text: string): string {
     return vnode2str(vnode);
 }
 
-export function parser(text: string): AST.RootNode {
-    return parse(text);
-}
+export { parse as parser };
 
 const unifiedParser: unified.Plugin = function unifiedParser(): void {
     this.Parser = file => {
