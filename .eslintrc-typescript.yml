@@ -17,6 +17,7 @@ settings:
       extensions:
         - .d.ts
       moduleDirectory:
+        - node_modules
         - node_modules/@types
 rules:
   node/no-unsupported-features/es-syntax:
