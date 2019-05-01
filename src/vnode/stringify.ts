@@ -9,26 +9,28 @@ export default function vnodeStringify({
     properties,
     children,
 }: VNode): string {
-    const propStr = Object.entries(properties).reduce((acc, [attr, value]) => {
-        let str = acc;
+    const propStr = properties
+        ? Object.entries(properties).reduce((acc, [attr, value]) => {
+              let str = acc;
 
-        str += /[\r\n]/.test(str)
-            ? `\n${' '.repeat(`<${tagName} `.length)}`
-            : ' ';
+              str += /[\r\n]/.test(str)
+                  ? `\n${' '.repeat(`<${tagName} `.length)}`
+                  : ' ';
 
-        if (/[\r\n]/.test(value)) {
-            const indent = ' '.repeat(`<${tagName} ${attr}="`.length);
-            const indentedValue = value.replace(
-                /\r\n?|\n/g,
-                m => `${m}${indent}`,
-            );
-            str += `${attr}="${indentedValue}"`;
-        } else {
-            str += `${attr}="${value}"`;
-        }
+              if (typeof value === 'string' && /[\r\n]/.test(value)) {
+                  const indent = ' '.repeat(`<${tagName} ${attr}="`.length);
+                  const indentedValue = value.replace(
+                      /\r\n?|\n/g,
+                      m => `${m}${indent}`,
+                  );
+                  str += `${attr}="${indentedValue}"`;
+              } else {
+                  str += `${attr}="${value}"`;
+              }
 
-        return str;
-    }, '');
+              return str;
+          }, '')
+        : '';
 
     if (children.length > 0) {
         const childrenStr = children
