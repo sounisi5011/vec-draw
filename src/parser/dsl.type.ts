@@ -1,7 +1,5 @@
 import * as Unist from 'unist';
 
-export * from 'unist';
-
 export interface StatementNode extends Unist.Parent {
     type: 'statement';
     name: string;
