@@ -228,3 +228,31 @@ test('開いていないXML要素', async t => {
         },
     );
 });
+
+test('正しくない属性構文のXML要素', async t => {
+    throwsAssert(
+        [
+            {
+                data: '<gtransform="translate(30) rotate(45 50 50)"></g>',
+                instanceOf: Error,
+            },
+            {
+                data: '<rect x="50"y="50"></rect>',
+                instanceOf: Error,
+            },
+            {
+                data: '<rect x="50" y="50"height="100" width="100"></rect>',
+                instanceOf: Error,
+            },
+        ],
+        (data, expected, msg) => {
+            t.throws(
+                () => {
+                    parse(data);
+                },
+                expected,
+                msg,
+            );
+        },
+    );
+});
