@@ -1,22 +1,24 @@
+import * as Unist from 'unist';
+
 import { AST } from '../../parser';
-import VNode from './vnode';
+import VNode from '../../vnode/vnode';
 
 function findFirstChildNode(
-    node: AST.Parent,
+    node: Unist.Parent,
     expectedObject: { type: 'coord' },
 ): AST.CoordNode | undefined;
 function findFirstChildNode(
-    node: AST.Parent,
+    node: Unist.Parent,
     expectedObject: { type: 'size' },
 ): AST.SizeNode | undefined;
 function findFirstChildNode(
-    node: AST.Parent,
+    node: Unist.Parent,
     expectedObject: { type: 'angle' },
 ): AST.AngleNode | undefined;
 function findFirstChildNode(
-    node: AST.Parent,
+    node: Unist.Parent,
     expectedObject: object,
-): AST.Node | undefined {
+): Unist.Node | undefined {
     const expectedEntries = Object.entries(expectedObject);
     return node.children.find(
         childNode =>
@@ -45,7 +47,7 @@ function isObject(value: unknown): value is { [key: string]: unknown } {
     return typeof value === 'object' && value !== null;
 }
 
-function isNode(value: unknown): value is AST.Node {
+function isNode(value: unknown): value is Unist.Node {
     return isObject(value) && typeof value.type === 'string';
 }
 
@@ -89,8 +91,9 @@ export function rect(statementNode: AST.StatementNode): VNode {
     }
 
     return {
-        nodeName: 'rect',
-        attributes: attrs,
+        type: 'element',
+        tagName: 'rect',
+        properties: attrs,
         children: [],
     };
 }
@@ -303,8 +306,9 @@ export function path(statementNode: AST.StatementNode): VNode {
         .join('\n');
 
     return {
-        nodeName: 'path',
-        attributes: attrs,
+        type: 'element',
+        tagName: 'path',
+        properties: attrs,
         children: [],
     };
 }

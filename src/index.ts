@@ -1,6 +1,9 @@
-import { parse } from './parser';
+import unified from 'unified';
+import { parse, AST } from './parser';
 import ast2vnode from './compiler/ast-to-vnode';
-import vnode2str from './compiler/vnode-to-str';
+import vnodeStringify from './vnode/stringify';
+import { isVNode } from './vnode/vnode';
+import { VFileCompatible2text } from './utils/unified';
 
 /**
  * @param {string} text 変換するvec-draw DSLの文字列
@@ -14,7 +17,30 @@ export function compile(text: string): string {
 
     const vnode = ast2vnode(ast);
 
-    return vnode2str(vnode);
+    return vnodeStringify(vnode);
 }
+
+export { parse as parser, ast2vnode, vnodeStringify };
+
+const unifiedParser: unified.Plugin = function unifiedParser(): void {
+    this.Parser = file => {
+        return parse(VFileCompatible2text(file));
+    };
+};
+
+const unifiedAst2vnode: unified.Plugin = function unifiedAst2vnode(): unified.Transformer {
+    return node => {
+        if (AST.isRootNode(node)) {
+            return ast2vnode(node);
+        }
+        return new Error('Argument node is not AST.RootNode');
+    };
+};
+
+const unifiedVnodeStringify: unified.Plugin = function unifiedVnodeStringify(): void {
+    this.Compiler = node => (isVNode(node) ? vnodeStringify(node) : '');
+};
+
+export { unifiedParser, unifiedAst2vnode, unifiedVnodeStringify };
 
 export * from './error';

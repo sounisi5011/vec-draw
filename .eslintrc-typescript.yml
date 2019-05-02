@@ -11,6 +11,15 @@ parserOptions:
   project: ./tsconfig.json
 plugins:
   - '@typescript-eslint'
+settings:
+  import/resolver:
+    node:
+      extensions:
+        - .js
+        - .d.ts
+      moduleDirectory:
+        - node_modules/@types
+        - node_modules
 rules:
   node/no-unsupported-features/es-syntax:
     - error
