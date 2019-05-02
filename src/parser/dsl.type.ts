@@ -1,5 +1,9 @@
 import * as Unist from 'unist';
 
+function isRecordObject(value: unknown): value is { [key: string]: unknown } {
+    return typeof value === 'object' && value !== null;
+}
+
 function filterNullable<T>(value: T): value is Exclude<T, null | undefined> {
     return value !== null && value !== undefined;
 }
@@ -36,6 +40,21 @@ export interface RootNode extends Unist.Parent {
     attributeNodes: StatementAttributeNodes;
     children: StatementNode['children'];
     fullChildren: StatementValueNode[];
+}
+
+export function isRootNode(value: unknown): value is RootNode {
+    if (isRecordObject(value)) {
+        if (
+            value.type === 'root' &&
+            isRecordObject(value.attributes) &&
+            isRecordObject(value.attributeNodes) &&
+            Array.isArray(value.children) &&
+            Array.isArray(value.fullChildren)
+        ) {
+            return true;
+        }
+    }
+    return false;
 }
 
 export function createRootNode(
