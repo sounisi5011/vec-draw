@@ -1,4 +1,4 @@
-import VNode from './vnode';
+import VNode from '.';
 import propertiesStringify from './properties-stringify';
 
 /**
