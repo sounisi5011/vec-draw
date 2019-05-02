@@ -7,7 +7,7 @@ import {
     unifiedParser,
     unifiedAst2vnode,
     unifiedVnodeStringify,
-} from '../../src/index';
+} from '../../src';
 
 const readFileAsync = promisify(readFile);
 
