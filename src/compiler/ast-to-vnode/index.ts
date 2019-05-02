@@ -1,6 +1,6 @@
-import * as statementNode2vnodeMap from './ast-to-vnode/statements';
-import { AST } from '../parser';
-import VNode, { isVNode } from '../vnode';
+import * as statementNode2vnodeMap from './statements';
+import { AST } from '../../parser';
+import VNode, { isVNode } from '../../vnode';
 
 function isStatementNode(
     node: AST.StatementValueNode,
