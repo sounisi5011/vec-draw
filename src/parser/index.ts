@@ -1,5 +1,5 @@
-import * as parser from './parser/dsl.parser';
-import * as AST from './parser/dsl.type';
+import * as parser from './dsl.parser';
+import * as AST from './dsl.type';
 
 export const { SyntaxError } = parser;
 
