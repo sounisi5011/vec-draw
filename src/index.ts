@@ -2,6 +2,7 @@ import unified from 'unified';
 import { parse } from './parser';
 import ast2vnode from './compiler/ast-to-vnode';
 import vnodeStringify from './vnode/stringify';
+import { isVNode } from './vnode/vnode';
 import { VFileCompatible2text } from './utils/unified';
 
 /**
@@ -19,7 +20,7 @@ export function compile(text: string): string {
     return vnodeStringify(vnode);
 }
 
-export { parse as parser };
+export { parse as parser, ast2vnode, vnodeStringify };
 
 const unifiedParser: unified.Plugin = function unifiedParser(): void {
     this.Parser = file => {
@@ -27,6 +28,14 @@ const unifiedParser: unified.Plugin = function unifiedParser(): void {
     };
 };
 
-export { unifiedParser };
+const unifiedAst2vnode: unified.Plugin = function unifiedAst2vnode(): unified.Transformer {
+    return node => ast2vnode(node);
+};
+
+const unifiedVnodeStringify: unified.Plugin = function unifiedVnodeStringify(): void {
+    this.Compiler = node => (isVNode(node) ? vnodeStringify(node) : '');
+};
+
+export { unifiedParser, unifiedAst2vnode, unifiedVnodeStringify };
 
 export * from './error';
