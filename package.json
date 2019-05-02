@@ -21,8 +21,9 @@
   "scripts": {
     "build": "run-s clean:build build:parser build:typescript",
     "build:parser": "node ./scripts/parser-generate.js ./src/parser/dsl.parser.pegjs ./src/parser/dsl.parser.ts",
-    "build:typescript": "run-p build:typescript:*",
+    "build:typescript": "npm-run-all --parallel build:typescript:commonjs build:typescript:esm --sequential build:typescript:copy-type-definitions",
     "build:typescript:commonjs": "tsc",
+    "build:typescript:copy-type-definitions": "cpy '**/*.d.ts' '../dist/' --cwd='./src/' --parents --no-overwrite",
     "build:typescript:esm": "run-s build:typescript:esm:tsc build:typescript:esm:rename build:typescript:esm:clean",
     "build:typescript:esm:clean": "rimraf ./dist.esm/",
     "build:typescript:esm:rename": "node ./scripts/js-to-mjs.js ./dist.esm/ ./dist/",
