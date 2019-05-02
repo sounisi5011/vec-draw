@@ -1,5 +1,5 @@
 import unified from 'unified';
-import { parse } from './parser';
+import { parse, AST } from './parser';
 import ast2vnode from './compiler/ast-to-vnode';
 import vnodeStringify from './vnode/stringify';
 import { isVNode } from './vnode/vnode';
@@ -29,7 +29,12 @@ const unifiedParser: unified.Plugin = function unifiedParser(): void {
 };
 
 const unifiedAst2vnode: unified.Plugin = function unifiedAst2vnode(): unified.Transformer {
-    return node => ast2vnode(node);
+    return node => {
+        if (AST.isRootNode(node)) {
+            return ast2vnode(node);
+        }
+        return new Error('Argument node is not AST.RootNode');
+    };
 };
 
 const unifiedVnodeStringify: unified.Plugin = function unifiedVnodeStringify(): void {
