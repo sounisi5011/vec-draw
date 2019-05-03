@@ -109,6 +109,7 @@
       "./test/",
       "./scripts/test/"
     ],
+    "snapshotDir": "./test/.snapshots/ava/",
     "compileEnhancements": false,
     "require": [
       "ts-node/register/transpile-only"
