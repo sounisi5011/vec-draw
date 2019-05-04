@@ -135,14 +135,14 @@ start
 
 //: AST.StatementNode
 statement "DSL Statement"
-  = name:symbol st:statement_attr* comment:statement_attr_comment StartIndent stl:statement_children {
-      return AST.createStatementNode(
+  = name:symbol ref:ref? st:statement_attr* comment:statement_attr_comment StartIndent stl:statement_children {
+      return AST.setRef(AST.createStatementNode(
         position(),
         name as AST.SymbolNode,
         ...st as (AST.XMLNode | AST.AttributeNode | AST.ValueNode)[],
         comment as (AST.CommentNode | undefined),
         ...stl as (AST.StatementValueNode | null)[]
-      );
+      ), ref as (AST.RefNode | null));
     }
 
 //: AST.XMLNode | AST.AttributeNode | AST.ValueNode
@@ -183,22 +183,30 @@ attr "DSL Attribute"
 
 //: AST.ValueNode
 value "DSL Value"
-  = coord
-  / size
-  / angle
-  / number
-  / symbol
+  = value:(coord / size / angle / number / symbol) ref:ref?
+    {
+      return AST.setRef(value as AST.ValueNode, ref as (AST.RefNode | null));
+    }
+  / ref
 
 //: AST.CoordNode
 coord "DSL Coordinate-type Value"
-  = "(" SP* x:number SP* "," SP* y:number SP* ")" {
-      return AST.createCoordNode(position(), x as AST.NumberNode, y as AST.NumberNode);
+  = "(" SP* x:number x_ref:ref? SP* "," SP* y:number y_ref:ref? SP* ")" {
+      return AST.createCoordNode(
+        position(),
+        AST.setRef(x as AST.NumberNode, x_ref as (AST.RefNode | null)),
+        AST.setRef(y as AST.NumberNode, y_ref as (AST.RefNode | null))
+      );
     }
 
 //: AST.SizeNode
 size "DSL Size-type Value"
-  = "(" SP* width:number SP* "x" SP* height:number SP* ")" {
-      return AST.createSizeNode(position(), width as AST.NumberNode, height as AST.NumberNode);
+  = "(" SP* width:number w_ref:ref? SP* "x" SP* height:number h_ref:ref? SP* ")" {
+      return AST.createSizeNode(
+        position(),
+        AST.setRef(width as AST.NumberNode, w_ref as (AST.RefNode | null)),
+        AST.setRef(height as AST.NumberNode, h_ref as (AST.RefNode | null))
+      );
     }
 
 //: AST.AngleNode
