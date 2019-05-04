@@ -2,7 +2,7 @@ import test from 'ava';
 import { readFile } from 'fs';
 import unified from 'unified';
 import { promisify } from 'util';
-import { parser, ast2vnode, unifiedAst2vnode } from '../../src/index';
+import { parser, ast2vnode, unifiedAst2vnode } from '../../src';
 
 const readFileAsync = promisify(readFile);
 

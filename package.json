@@ -56,6 +56,7 @@
     ],
     "*.ts": [
       "eslint --config ./.eslintrc-typescript.yml --fix",
+      "node ./scripts/generate-all-export-file.js",
       "git add"
     ],
     "*.{mjs,js}": [
@@ -78,6 +79,7 @@
     "@typescript-eslint/eslint-plugin": "1.x",
     "@typescript-eslint/parser": "1.x",
     "ava": "^1.2.0",
+    "await-spawn": "2.x",
     "cpy-cli": "2.x",
     "eslint": "5.x",
     "eslint-config-airbnb-base": "13.x",
@@ -105,6 +107,11 @@
     "node": ">=8.10.0"
   },
   "ava": {
+    "files": [
+      "./test/",
+      "./scripts/test/"
+    ],
+    "snapshotDir": "./test/.snapshots/ava/",
     "compileEnhancements": false,
     "require": [
       "ts-node/register/transpile-only"

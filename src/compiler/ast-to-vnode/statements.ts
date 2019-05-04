@@ -1,7 +1,7 @@
 import * as Unist from 'unist';
 
 import { AST } from '../../parser';
-import VNode from '../../vnode/vnode';
+import VNode from '../../vnode';
 
 function findFirstChildNode(
     node: Unist.Parent,
