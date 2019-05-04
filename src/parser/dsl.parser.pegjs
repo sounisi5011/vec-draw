@@ -213,6 +213,12 @@ number "DSL Numeric Value"
       return AST.createNumberNode(position(), value as string);
     }
 
+//: AST.RefNode
+ref "DSL Reference-type Value"
+  = "#" name:$(symbol) {
+      return AST.createRefNode(position(), name as string);
+    }
+
 //: AST.SymbolNode
 symbol "DSL Symbol-type Value"
   = value:$([_a-z]i [_a-z0-9-]i*) {
