@@ -21,8 +21,9 @@
   "scripts": {
     "build": "run-s clean:build build:parser build:typescript",
     "build:parser": "node ./scripts/parser-generate.js ./src/parser/dsl.parser.pegjs ./src/parser/dsl.parser.ts",
-    "build:typescript": "run-p build:typescript:*",
+    "build:typescript": "npm-run-all --parallel build:typescript:commonjs build:typescript:esm --sequential build:typescript:copy-type-definitions",
     "build:typescript:commonjs": "tsc",
+    "build:typescript:copy-type-definitions": "cpy '**/*.d.ts' '../dist/' --cwd='./src/' --parents --no-overwrite",
     "build:typescript:esm": "run-s build:typescript:esm:tsc build:typescript:esm:rename build:typescript:esm:clean",
     "build:typescript:esm:clean": "rimraf ./dist.esm/",
     "build:typescript:esm:rename": "node ./scripts/js-to-mjs.js ./dist.esm/ ./dist/",
@@ -68,12 +69,18 @@
       "git add"
     ]
   },
+  "dependencies": {
+    "@types/unist": "2.x",
+    "@types/vfile": "3.x",
+    "unified": "7.x"
+  },
   "devDependencies": {
     "@types/node": "11.x",
     "@typescript-eslint/eslint-plugin": "1.x",
     "@typescript-eslint/parser": "1.x",
     "ava": "^1.2.0",
     "await-spawn": "2.x",
+    "cpy-cli": "2.x",
     "eslint": "5.x",
     "eslint-config-airbnb-base": "13.x",
     "eslint-config-prettier": "4.x",
@@ -100,6 +107,11 @@
     "node": ">=8.10.0"
   },
   "ava": {
+    "files": [
+      "./test/",
+      "./scripts/test/"
+    ],
+    "snapshotDir": "./test/.snapshots/ava/",
     "compileEnhancements": false,
     "require": [
       "ts-node/register/transpile-only"

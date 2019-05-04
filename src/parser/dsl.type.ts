@@ -1,28 +1,81 @@
-export interface Node {
-    type: string;
-    position: Position;
+import * as Unist from 'unist';
+
+function isRecordObject(value: unknown): value is { [key: string]: unknown } {
+    return typeof value === 'object' && value !== null;
 }
 
-export interface Parent extends Node {
-    children: Node[];
+function filterNullable<T>(value: T): value is Exclude<T, null | undefined> {
+    return value !== null && value !== undefined;
 }
 
-export interface Literal extends Node {
-    value: unknown;
+function allChildren2attrAndChildren(
+    allChildren: (StatementValueNode | null | undefined)[],
+): [
+    StatementAttributes,
+    StatementAttributeNodes,
+    StatementNode['children'],
+    StatementValueNode[]
+] {
+    const fullChildren = allChildren.filter(filterNullable);
+    const attributes: StatementAttributes = {};
+    const attributeNodes: StatementAttributeNodes = {};
+    const children: StatementNode['children'] = [];
+
+    fullChildren.forEach(childNode => {
+        if (childNode.type === 'attr') {
+            const attrNode = childNode;
+            attributes[attrNode.name] = attrNode.value;
+            attributeNodes[attrNode.name] = attrNode;
+        } else if (childNode.type !== 'comment') {
+            children.push(childNode);
+        }
+    });
+
+    return [attributes, attributeNodes, children, fullChildren];
 }
 
-export interface Point {
-    offset: number;
-    line: number;
-    column: number;
+export interface RootNode extends Unist.Parent {
+    type: 'root';
+    attributes: StatementAttributes;
+    attributeNodes: StatementAttributeNodes;
+    children: StatementNode['children'];
+    fullChildren: StatementValueNode[];
 }
 
-export interface Position {
-    start: Point;
-    end: Point;
+export function isRootNode(value: unknown): value is RootNode {
+    if (isRecordObject(value)) {
+        if (
+            value.type === 'root' &&
+            isRecordObject(value.attributes) &&
+            isRecordObject(value.attributeNodes) &&
+            Array.isArray(value.children) &&
+            Array.isArray(value.fullChildren)
+        ) {
+            return true;
+        }
+    }
+    return false;
 }
 
-export interface StatementNode extends Parent {
+export function createRootNode(
+    ...allChildren: (StatementValueNode | null)[]
+): RootNode {
+    const [
+        attributes,
+        attributeNodes,
+        children,
+        fullChildren,
+    ] = allChildren2attrAndChildren(allChildren);
+    return {
+        type: 'root',
+        attributes,
+        attributeNodes,
+        children,
+        fullChildren,
+    };
+}
+
+export interface StatementNode extends Unist.Parent {
     type: 'statement';
     name: string;
     nameSymbol: SymbolNode;
@@ -30,6 +83,29 @@ export interface StatementNode extends Parent {
     attributeNodes: StatementAttributeNodes;
     children: Exclude<StatementValueNode, AttributeNode | CommentNode>[];
     fullChildren: StatementValueNode[];
+}
+
+export function createStatementNode(
+    position: Unist.Position,
+    name: SymbolNode,
+    ...allChildren: (StatementValueNode | null | undefined)[]
+): StatementNode {
+    const [
+        attributes,
+        attributeNodes,
+        children,
+        fullChildren,
+    ] = allChildren2attrAndChildren(allChildren);
+    return {
+        type: 'statement',
+        name: name.value,
+        nameSymbol: name,
+        attributes,
+        attributeNodes,
+        children,
+        fullChildren,
+        position,
+    };
 }
 
 export interface StatementAttributes {
@@ -47,11 +123,25 @@ export type StatementValueNode =
     | StatementNode
     | ValueNode;
 
-export interface AttributeNode extends Literal {
+export interface AttributeNode extends Unist.Literal {
     type: 'attr';
     name: string;
     nameSymbol: SymbolNode;
     value: ValueNode;
+}
+
+export function createAttributeNode(
+    position: Unist.Position,
+    name: SymbolNode,
+    value: ValueNode,
+): AttributeNode {
+    return {
+        type: 'attr',
+        name: name.value,
+        nameSymbol: name,
+        value,
+        position,
+    };
 }
 
 export type ValueNode =
@@ -61,7 +151,7 @@ export type ValueNode =
     | NumberNode
     | SymbolNode;
 
-export interface CoordNode extends Literal {
+export interface CoordNode extends Unist.Literal {
     type: 'coord';
     value: {
         x: string;
@@ -73,7 +163,26 @@ export interface CoordNode extends Literal {
     };
 }
 
-export interface SizeNode extends Literal {
+export function createCoordNode(
+    position: Unist.Position,
+    x: NumberNode,
+    y: NumberNode,
+): CoordNode {
+    return {
+        type: 'coord',
+        value: {
+            x: x.value,
+            y: y.value,
+        },
+        valueNode: {
+            x,
+            y,
+        },
+        position,
+    };
+}
+
+export interface SizeNode extends Unist.Literal {
     type: 'size';
     value: {
         width: string;
@@ -85,44 +194,160 @@ export interface SizeNode extends Literal {
     };
 }
 
-export interface AngleNode extends Literal {
+export function createSizeNode(
+    position: Unist.Position,
+    width: NumberNode,
+    height: NumberNode,
+): SizeNode {
+    return {
+        type: 'size',
+        value: {
+            width: width.value,
+            height: height.value,
+        },
+        valueNode: {
+            width,
+            height,
+        },
+        position,
+    };
+}
+
+export interface AngleNode extends Unist.Literal {
     type: 'angle';
     value: string;
     valueNode: NumberNode;
     unit: string;
 }
 
-export interface NumberNode extends Literal {
+export function createAngleNode(
+    position: Unist.Position,
+    value: NumberNode,
+    unit: string,
+): AngleNode {
+    return {
+        type: 'angle',
+        value: value.value,
+        valueNode: value,
+        unit: unit.toLowerCase(),
+        position,
+    };
+}
+
+export interface NumberNode extends Unist.Literal {
     type: 'number';
     value: string;
     rawValue: string;
 }
 
-export interface SymbolNode extends Literal {
+export function createNumberNode(
+    position: Unist.Position,
+    value: string,
+): NumberNode {
+    return {
+        type: 'number',
+        value: value.replace(/^\./, '0.'),
+        rawValue: value,
+        position,
+    };
+}
+
+export interface SymbolNode extends Unist.Literal {
     type: 'symbol';
     value: string;
 }
 
-export interface CommentNode extends Literal {
+export function createSymbolNode(
+    position: Unist.Position,
+    value: string,
+): SymbolNode {
+    return {
+        type: 'symbol',
+        value,
+        position,
+    };
+}
+
+export interface CommentNode extends Unist.Literal {
     type: 'comment';
     value: string;
 }
 
-export interface TextNode extends Literal {
+export function createCommentNode(
+    position: Unist.Position,
+    value: string,
+): CommentNode {
+    return {
+        type: 'comment',
+        value,
+        position,
+    };
+}
+
+export interface TextNode extends Unist.Literal {
     type: 'text';
     value: string;
 }
 
-export interface XMLNode extends Node {
+export function createTextNode(
+    position: Unist.Position,
+    value: string,
+): TextNode {
+    return {
+        type: 'text',
+        value,
+        position,
+    };
+}
+
+export interface XMLNode extends Unist.Node {
     type: 'xml';
     content: TextNode | CommentNode | ElementNode;
 }
 
-export interface ElementNode extends Parent {
+export function createXMLNode(
+    position: Unist.Position,
+    contentValue: TextNode | CommentNode | ElementNode,
+): XMLNode {
+    return {
+        type: 'xml',
+        content: contentValue,
+        position,
+    };
+}
+
+export interface ElementNode extends Unist.Parent {
     type: 'element';
     tagName: string;
     properties: ElementProperties;
     children: (TextNode | CommentNode | ElementNode)[];
+}
+
+export function createElementNode(
+    position: Unist.Position,
+    nodeName: string,
+    attrList: (
+        | { name: string; value: ElementPropertyValue }
+        | string
+        | undefined)[],
+    children: ElementNode['children'],
+): ElementNode {
+    const props: ElementProperties = {};
+
+    attrList.forEach(attr => {
+        if (typeof attr === 'object') {
+            const { name: attrName, value: attrValue } = attr;
+            props[attrName] = attrValue;
+        }
+    });
+
+    return {
+        type: 'element',
+        tagName: nodeName,
+        properties: props,
+        children,
+        position,
+    };
 }
 
 export interface ElementProperties {

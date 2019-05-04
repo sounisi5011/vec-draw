@@ -1,5 +1,5 @@
 const test = require('ava');
-const strIncludesLines = require('../../../scripts/src/str-includes-lines.js');
+const strIncludesLines = require('../../src/str-includes-lines.js');
 
 test('複数行の一致', t => {
   // prettier-ignore

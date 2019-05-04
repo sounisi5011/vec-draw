@@ -1,7 +1,7 @@
 import test from 'ava';
 import { readFile } from 'fs';
 import { promisify } from 'util';
-import { compile } from '../../../src/index';
+import { compile } from '../../../src';
 
 const readFileAsync = promisify(readFile);
 
