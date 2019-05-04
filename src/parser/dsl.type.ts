@@ -252,6 +252,22 @@ export function createNumberNode(
     };
 }
 
+export interface RefNode extends Unist.Literal {
+    type: 'ref';
+    value: string;
+}
+
+export function createRefNode(
+    position: Unist.Position,
+    value: string,
+): RefNode {
+    return {
+        type: 'ref',
+        value,
+        position,
+    };
+}
+
 export interface SymbolNode extends Unist.Literal {
     type: 'symbol';
     value: string;
