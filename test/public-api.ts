@@ -12,6 +12,7 @@ test('公開APIの存在検証', t => {
         'unifiedVnodeStringify',
         'BaseError',
         'IndentationError',
+        'ReferenceError',
         'SyntaxError',
         'XMLError',
     ];
