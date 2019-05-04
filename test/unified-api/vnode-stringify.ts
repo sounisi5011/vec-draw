@@ -1,7 +1,7 @@
 import test from 'ava';
 import unified from 'unified';
-import { vnodeStringify, unifiedVnodeStringify } from '../../src/index';
-import VNode from '../../src/vnode/vnode';
+import { vnodeStringify, unifiedVnodeStringify } from '../../src';
+import VNode from '../../src/vnode';
 
 test('unifiedで使用するVNode文字列化関数の出力確認', t => {
     const vnodeTree: VNode = {

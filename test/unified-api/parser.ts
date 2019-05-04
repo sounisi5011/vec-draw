@@ -2,7 +2,7 @@ import test from 'ava';
 import { readFile } from 'fs';
 import unified from 'unified';
 import { promisify } from 'util';
-import { parser, unifiedParser } from '../../src/index';
+import { parser, unifiedParser } from '../../src';
 
 const readFileAsync = promisify(readFile);
 

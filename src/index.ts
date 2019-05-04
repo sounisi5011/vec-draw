@@ -2,7 +2,7 @@ import unified from 'unified';
 import { parse, AST } from './parser';
 import ast2vnode from './compiler/ast-to-vnode';
 import vnodeStringify from './vnode/stringify';
-import { isVNode } from './vnode/vnode';
+import { isVNode } from './vnode';
 import { VFileCompatible2text } from './utils/unified';
 
 /**

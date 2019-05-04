@@ -1,5 +1,5 @@
 const test = require('ava');
-const indent = require('../../../scripts/src/indent.js');
+const indent = require('../../src/indent.js');
 
 test('空白2文字でインデント', t => {
   // prettier-ignore

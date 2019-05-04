@@ -1,5 +1,5 @@
 const test = require('ava');
-const consoleMsg = require('../../../scripts/src/console-msg.js');
+const consoleMsg = require('../../src/console-msg.js');
 
 test('先頭行以降は字数に合わせてインデント', t => {
   // prettier-ignore
