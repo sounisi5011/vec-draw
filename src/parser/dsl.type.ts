@@ -34,6 +34,18 @@ function allChildren2attrAndChildren(
     return [attributes, attributeNodes, children, fullChildren];
 }
 
+export interface ReferencedNode {
+    ref?: string;
+}
+
+export function setRef<T extends ReferencedNode>(v: T, ref: RefNode | null): T {
+    const value = v;
+    if (ref) {
+        value.ref = ref.value;
+    }
+    return value;
+}
+
 export interface RootNode extends Unist.Parent {
     type: 'root';
     attributes: StatementAttributes;
@@ -75,7 +87,7 @@ export function createRootNode(
     };
 }
 
-export interface StatementNode extends Unist.Parent {
+export interface StatementNode extends Unist.Parent, ReferencedNode {
     type: 'statement';
     name: string;
     nameSymbol: SymbolNode;
@@ -149,9 +161,10 @@ export type ValueNode =
     | SizeNode
     | AngleNode
     | NumberNode
-    | SymbolNode;
+    | SymbolNode
+    | RefNode;
 
-export interface CoordNode extends Unist.Literal {
+export interface CoordNode extends Unist.Literal, ReferencedNode {
     type: 'coord';
     value: {
         x: string;
@@ -182,7 +195,7 @@ export function createCoordNode(
     };
 }
 
-export interface SizeNode extends Unist.Literal {
+export interface SizeNode extends Unist.Literal, ReferencedNode {
     type: 'size';
     value: {
         width: string;
@@ -213,7 +226,7 @@ export function createSizeNode(
     };
 }
 
-export interface AngleNode extends Unist.Literal {
+export interface AngleNode extends Unist.Literal, ReferencedNode {
     type: 'angle';
     value: string;
     valueNode: NumberNode;
@@ -234,7 +247,7 @@ export function createAngleNode(
     };
 }
 
-export interface NumberNode extends Unist.Literal {
+export interface NumberNode extends Unist.Literal, ReferencedNode {
     type: 'number';
     value: string;
     rawValue: string;
@@ -268,7 +281,7 @@ export function createRefNode(
     };
 }
 
-export interface SymbolNode extends Unist.Literal {
+export interface SymbolNode extends Unist.Literal, ReferencedNode {
     type: 'symbol';
     value: string;
 }
