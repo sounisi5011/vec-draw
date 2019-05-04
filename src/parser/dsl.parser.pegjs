@@ -185,7 +185,7 @@ attr "DSL Attribute"
 value "DSL Value"
   = value:(coord / size / angle / number / symbol) ref:ref?
     {
-      return AST.setRef(value as AST.ValueNode, ref as (AST.RefNode | null));
+      return AST.setRef(value as Exclude<AST.ValueNode, AST.RefNode>, ref as (AST.RefNode | null));
     }
   / ref
 
