@@ -22,10 +22,7 @@ function findFirstChildNode(
     const expectedEntries = Object.entries(expectedObject);
     return node.children.find(
         childNode =>
-            childNode &&
-            expectedEntries.every(
-                ([k, v]) => v === (childNode as { [key: string]: unknown })[k],
-            ),
+            childNode && expectedEntries.every(([k, v]) => v === childNode[k]),
     );
 }
 
