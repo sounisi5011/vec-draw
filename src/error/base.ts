@@ -60,7 +60,7 @@ export default class BaseError extends Error {
             Object.defineProperty(this, 'name', {
                 configurable: true,
                 enumerable: false,
-                value: String((constructor as { name: unknown }).name),
+                value: String(constructor.name),
                 writable: true,
             });
         }
